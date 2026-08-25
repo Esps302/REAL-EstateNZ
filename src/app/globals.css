@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+ --color-primary: #1e3a8a;
+ --color-primary-dark: #172554;
+ --color-secondary: #3b82f6;
+ --color-secondary-light: #93c5fd;
+ --color-accent: #f97316;
+ --color-accent-dark: #ea580c;
+ --color-highlight: #f59e0b;
+ --color-success: #22C55E;
+ --color-warning: #EAB308;
+ --color-danger: #EF4444;
+ --color-info: #0EA5E9;
+ --color-surface: #FFFFFF;
+ --color-surface-hover: #F8FAFC;
+ --color-border-light: #E2E8F0;
+ --color-muted-text: #64748B;
+ --color-background: #FFFFFF;
+ --color-foreground: #0F172A;
+
+ --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+ --background: #FFFFFF;
+ --foreground: #0F172A;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+ background-color: var(--background);
+ color: var(--foreground);
+ font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+ -webkit-font-smoothing: antialiased;
+ -moz-osx-font-smoothing: grayscale;
+ text-rendering: optimizeLegibility;
+}
+
+/* Custom UI Utilities */
+.glass {
+ background: rgba(255, 255, 255, 0.85);
+ backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(12px);
+ border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.premium-shadow {
+ box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+}
+
+/* Animations */
+@keyframes fade-in {
+ from { opacity: 0; transform: translateY(10px); }
+ to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+ animation: fade-in 0.5s ease-out forwards;
+}
