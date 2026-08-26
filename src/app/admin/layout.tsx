@@ -19,7 +19,8 @@ import {
  ShieldAlert,
  CreditCard,
  Handshake,
- Calendar
+ Calendar,
+ LifeBuoy
 } from 'lucide-react';
 
  const sidebarLinks = [
@@ -29,6 +30,7 @@ import {
   { name: 'Viewings', href: '/admin/viewings', icon: Calendar },
   { name: 'Offers & Negotiations', href: '/admin/offers', icon: Handshake },
   { name: 'Client CRM', href: '/admin/crm', icon: UserCircle },
+  { name: 'Support Tickets', href: '/admin/tickets', icon: LifeBuoy },
   { name: 'Economy & Wallet', href: '/admin/economy', icon: CreditCard },
   { name: 'System Logs', href: '/admin/logs', icon: ShieldAlert }
 ];
