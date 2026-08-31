@@ -182,30 +182,31 @@ export default function SellPage() {
  setSubmitting(true);
 
  try {
- const uploadedUrls: string[] = [];
+  // 1. Prepare Cover Image Upload
+  const coverRef = ref(storage, `properties/${user.uid}/${Date.now()}_cover_${coverImage.name}`);
+  const coverPromise = uploadBytes(coverRef, coverImage).then(() => getDownloadURL(coverRef));
 
- // 1. Upload Cover Image
- const coverRef = ref(storage, `properties/${user.uid}/${Date.now()}_cover_${coverImage.name}`);
- await uploadBytes(coverRef, coverImage);
- const coverUrl = await getDownloadURL(coverRef);
- uploadedUrls.push(coverUrl);
+  // 2. Prepare Gallery Images Uploads
+  const galleryPromises = galleryImages.map((file, i) => {
+    const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
+    return uploadBytes(gRef, file).then(() => getDownloadURL(gRef));
+  });
 
- // 2. Upload Gallery Images
- for (let i = 0; i < galleryImages.length; i++) {
- const file = galleryImages[i];
- const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
- await uploadBytes(gRef, file);
- const gUrl = await getDownloadURL(gRef);
- uploadedUrls.push(gUrl);
- }
+  // 2.5 Prepare Floor Plan Upload
+  let floorPlanPromise: Promise<string | undefined> = Promise.resolve(undefined);
+  if (floorPlanImage) {
+    const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${floorPlanImage.name}`);
+    floorPlanPromise = uploadBytes(fpRef, floorPlanImage).then(() => getDownloadURL(fpRef));
+  }
 
- // 2.5 Upload Floor Plan
- let floorPlanUrl: string | undefined = undefined;
- if (floorPlanImage) {
- const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${floorPlanImage.name}`);
- await uploadBytes(fpRef, floorPlanImage);
- floorPlanUrl = await getDownloadURL(fpRef);
- }
+  // 3. Execute all uploads in parallel for maximum speed
+  const [coverUrl, galleryUrls, floorPlanUrl] = await Promise.all([
+    coverPromise,
+    Promise.all(galleryPromises),
+    floorPlanPromise
+  ]);
+
+  const uploadedUrls = [coverUrl, ...galleryUrls];
 
  // 3. Auto-Geocode the Address
  let lat: number | undefined = undefined;
