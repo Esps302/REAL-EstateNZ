@@ -222,15 +222,18 @@ export async function purchaseListing(userId: string, propertyData: any, plan: "
       // Create property
       const propertyRef = doc(collection(db, "properties"));
       
-      // If featured, calculate featuredUntil (e.g. 30 days from now)
-      const featuredUntil = plan === "Featured" ? Date.now() + (30 * 24 * 60 * 60 * 1000) : undefined;
-      
-      transaction.set(propertyRef, {
+      const propertyDataToSave: any = {
         ...propertyData,
         id: propertyRef.id,
-        plan,
-        featuredUntil
-      });
+        plan
+      };
+      
+      // If featured, calculate featuredUntil (e.g. 30 days from now)
+      if (plan === "Featured") {
+        propertyDataToSave.featuredUntil = Date.now() + (30 * 24 * 60 * 60 * 1000);
+      }
+      
+      transaction.set(propertyRef, propertyDataToSave);
     });
     return true;
   } catch (e) {

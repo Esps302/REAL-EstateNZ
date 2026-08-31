@@ -35,8 +35,7 @@ export default function NotificationBell() {
 
     const q = query(
       collection(db, "notifications"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
 
     const unsubscribeUser = onSnapshot(q, (snapshot) => {
@@ -56,6 +55,7 @@ export default function NotificationBell() {
         }
       });
       
+      notifs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       setUserNotifications(notifs);
 
       // Handle new popups (open menu instead)
@@ -83,8 +83,7 @@ export default function NotificationBell() {
     if (userData?.role === 'admin' || userData?.role === 'super_admin') {
       const adminQ = query(
         collection(db, "notifications"),
-        where("userId", "==", "admin_system"),
-        orderBy("createdAt", "desc")
+        where("userId", "==", "admin_system")
       );
 
       unsubscribeAdmin = onSnapshot(adminQ, (snapshot) => {
@@ -108,6 +107,7 @@ export default function NotificationBell() {
           }
         });
         
+        notifs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         setAdminNotifications(notifs);
 
         if (newPopups.length > 0) {

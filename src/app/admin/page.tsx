@@ -152,7 +152,7 @@ export default function AdminDashboardOverview() {
  calculateDashboard(currentUsers, currentProps, currentNotifs);
  });
 
- unsubNotifs = onSnapshot(query(collection(db, "notifications"), where("userId", "==", "admin_system"), orderBy("createdAt", "desc")), (snap) => {
+ unsubNotifs = onSnapshot(query(collection(db, "notifications"), where("userId", "==", "admin_system")), (snap) => {
  currentNotifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
  calculateDashboard(currentUsers, currentProps, currentNotifs);
  });
