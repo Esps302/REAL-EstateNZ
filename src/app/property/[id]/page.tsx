@@ -114,7 +114,7 @@ const getAmenityIcon = (amenity: string) => {
             {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller')
               ? (property?.isSold 
                 ? "Sold" 
-                : (property?.price === 0 ? "By Negotiation" : formatCurrency(property?.price || 0, property?.currency)))
+                : (property?.price === 0 ? "By Negotiation" : `${formatCurrency(property?.price || 0, property?.currency)}${property?.listingType === 'For Rent' ? (property?.rentFrequency === 'Monthly' ? ' / month' : ' / week') : ''}`))
               : (property?.isSold ? "Sold" : `By ${brokerName}`)
             }
           </p>

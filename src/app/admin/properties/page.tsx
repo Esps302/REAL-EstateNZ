@@ -266,7 +266,7 @@ export default function AdminPropertiesPage() {
  </div>
  </td>
  <td className="px-6 py-4">
- <div className="font-bold text-zinc-900">{formatCurrency(property.price, property.currency)}</div>
+ <div className="font-bold text-zinc-900">{formatCurrency(property.price, property.currency)}{property.listingType === 'For Rent' ? (property.rentFrequency === 'Monthly' ? ' / month' : ' / week') : ''}</div>
  <div className="text-xs text-zinc-500 mt-0.5">{property.listingType} &bull; {property.propertyType}</div>
  </td>
  <td className="px-6 py-4">

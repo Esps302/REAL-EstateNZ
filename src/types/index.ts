@@ -52,6 +52,7 @@ export interface Property {
  lng?: number;
  propertyType: PropertyType;
  listingType: ListingType;
+ rentFrequency?: "Weekly" | "Monthly";
  status: PropertyStatus;
  isSold?: boolean;
  bedrooms: number;

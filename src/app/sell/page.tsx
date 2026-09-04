@@ -44,6 +44,7 @@ export default function SellPage() {
  currency: "NZD",
  reservePrice: "",
  listingType: "For Sale",
+ rentFrequency: "Weekly",
  propertyType: "House",
  address: "",
  city: "",
@@ -239,6 +240,7 @@ export default function SellPage() {
  currency: formData.currency,
  reservePrice: Number(formData.reservePrice),
  listingType: formData.listingType,
+ ...(formData.listingType === "For Rent" && { rentFrequency: formData.rentFrequency }),
  propertyType: formData.propertyType,
  address: formData.address,
  city: formData.city,
@@ -355,6 +357,15 @@ export default function SellPage() {
  <option>For Rent</option>
  </select>
  </div>
+ {formData.listingType === "For Rent" && (
+ <div>
+ <label className="block text-sm font-semibold mb-2 text-zinc-700">Rent Frequency</label>
+ <select required name="rentFrequency" value={formData.rentFrequency} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900">
+ <option value="Weekly">Weekly</option>
+ <option value="Monthly">Monthly</option>
+ </select>
+ </div>
+ )}
  </div>
 
  <div className="grid grid-cols-1 gap-6">

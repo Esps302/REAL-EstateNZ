@@ -114,12 +114,12 @@ export default function AdminPropertyPreviewModal({ property, isOpen, onClose, o
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-zinc-500 mb-1">Public Asking Price</p>
-                      <p className="text-lg font-extrabold text-zinc-900">{formatCurrency(property.price, property.currency)}</p>
+                      <p className="text-lg font-extrabold text-zinc-900">{formatCurrency(property.price, property.currency)}{property.listingType === 'For Rent' ? (property.rentFrequency === 'Monthly' ? ' / month' : ' / week') : ''}</p>
                     </div>
                     <div>
                       <p className="text-xs text-zinc-500 mb-1">Confidential Reserve Price</p>
                       <p className="text-lg font-extrabold text-rose-600">
-                        {property.reservePrice ? formatCurrency(property.reservePrice, property.currency) : "Not Set"}
+                        {property.reservePrice ? `${formatCurrency(property.reservePrice, property.currency)}${property.listingType === 'For Rent' ? (property.rentFrequency === 'Monthly' ? ' / month' : ' / week') : ''}` : "Not Set"}
                       </p>
                     </div>
                   </div>
