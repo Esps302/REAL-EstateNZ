@@ -56,7 +56,7 @@ export const useAuth = () => useContext(AuthContext);
  setUserData({
  id: firebaseUser.uid,
  name: firebaseUser.displayName || 'Sanjay Rana',
- email: firebaseUser.email,
+ email: firebaseUser.email || '',
  role: 'super_admin',
  createdAt: Date.now()
  });
@@ -70,7 +70,7 @@ export const useAuth = () => useContext(AuthContext);
  setUserData({
  id: firebaseUser.uid,
  name: firebaseUser.displayName || 'Sanjay Rana',
- email: firebaseUser.email,
+ email: firebaseUser.email || '',
  role: 'super_admin',
  createdAt: Date.now()
  });
