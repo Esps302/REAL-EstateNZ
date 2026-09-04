@@ -55,9 +55,11 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       // Users can read their own notifications, admins can read all
       allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
-      // Users can update their own notifications (e.g. marking as read/popped up), admins can create/update
+      // Users can update their own notifications, admins can create/update, AND anyone can create a notification for admin_system
       allow write: if isAuthenticated() && (
-        isAdmin() || (request.resource.data.userId == request.auth.uid)
+        isAdmin() || 
+        (request.resource.data.userId == request.auth.uid) ||
+        (request.resource.data.userId == 'admin_system')
       );
     }
     
