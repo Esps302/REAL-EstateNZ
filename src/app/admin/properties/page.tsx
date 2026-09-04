@@ -13,12 +13,14 @@ import {
  Trash2, 
  Search, 
  Filter, 
- ExternalLink 
+ ExternalLink,
+ Eye
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { sendNotificationEmail } from "@/utils/sendNotificationEmail";
 import { formatCurrency } from "@/utils/formatCurrency";
+import AdminPropertyPreviewModal from "@/components/AdminPropertyPreviewModal";
 
 export default function AdminPropertiesPage() {
  const { user, userData, loading } = useAuth();
@@ -27,6 +29,7 @@ export default function AdminPropertiesPage() {
  const [properties, setProperties] = useState<any[]>([]);
  const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
  const [fetching, setFetching] = useState(true);
+ const [previewProperty, setPreviewProperty] = useState<any>(null);
  
  const [searchTerm, setSearchTerm] = useState("");
  const [statusFilter, setStatusFilter] = useState("all");
@@ -284,7 +287,11 @@ export default function AdminPropertiesPage() {
  </td>
  <td className="px-6 py-4 text-right">
  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
- <Link href={`/property/${property.id}`} target="_blank" className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Property">
+ <button onClick={() => setPreviewProperty(property)} className="p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Quick Preview">
+ <Eye className="w-4 h-4" />
+ </button>
+ 
+ <Link href={`/property/${property.id}`} target="_blank" className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Public Page">
  <ExternalLink className="w-4 h-4" />
  </Link>
  
@@ -314,6 +321,15 @@ export default function AdminPropertiesPage() {
  </table>
  </div>
  </div>
+
+ <AdminPropertyPreviewModal 
+   property={previewProperty} 
+   isOpen={!!previewProperty} 
+   onClose={() => setPreviewProperty(null)}
+   onApprove={() => handleUpdateStatus(previewProperty?.id, 'approved')}
+   onReject={() => handleUpdateStatus(previewProperty?.id, 'rejected')}
+ />
+
  </div>
  );
 }
