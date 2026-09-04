@@ -34,6 +34,7 @@ export default function SellPage() {
  title: "",
  description: "",
  price: "",
+ currency: "NZD",
  reservePrice: "",
  listingType: "For Sale",
  propertyType: "House",
@@ -228,6 +229,7 @@ export default function SellPage() {
  title: formData.title,
  description: formData.description,
  price: Number(formData.price),
+ currency: formData.currency,
  reservePrice: Number(formData.reservePrice),
  listingType: formData.listingType,
  propertyType: formData.propertyType,
@@ -370,8 +372,17 @@ export default function SellPage() {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-semibold mb-2 text-zinc-700">Public Asking Price ($)</label>
- <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 850000" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+ <label className="block text-sm font-semibold mb-2 text-zinc-700">Public Asking Price</label>
+ <div className="flex gap-2">
+   <select name="currency" value={formData.currency} onChange={handleChange} className="w-1/3 px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900 font-bold">
+     <option value="NZD">NZD ($)</option>
+     <option value="USD">USD ($)</option>
+     <option value="AUD">AUD ($)</option>
+     <option value="EUR">EUR (€)</option>
+     <option value="GBP">GBP (£)</option>
+   </select>
+   <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 850000" className="w-2/3 px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+ </div>
  </div>
  <div>
  <label className="block text-sm font-semibold mb-2 text-zinc-700 flex items-center justify-between">

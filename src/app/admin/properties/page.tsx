@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { sendNotificationEmail } from "@/utils/sendNotificationEmail";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function AdminPropertiesPage() {
  const { user, userData, loading } = useAuth();
@@ -262,7 +263,7 @@ export default function AdminPropertiesPage() {
  </div>
  </td>
  <td className="px-6 py-4">
- <div className="font-bold text-zinc-900">${property.price?.toLocaleString()}</div>
+ <div className="font-bold text-zinc-900">{formatCurrency(property.price, property.currency)}</div>
  <div className="text-xs text-zinc-500 mt-0.5">{property.listingType} &bull; {property.propertyType}</div>
  </td>
  <td className="px-6 py-4">

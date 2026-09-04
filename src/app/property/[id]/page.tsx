@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { OfferModal } from "@/components/OfferModal";
 import { ServiceRequestModal } from "@/components/ServiceRequestModal";
+import { formatCurrency } from "@/utils/formatCurrency";
 import { ViewingModal } from "@/components/ViewingModal";
 import ReviewSection from "@/components/ReviewSection";
 import MortgageCalculator from "@/components/MortgageCalculator";
@@ -113,7 +114,7 @@ const getAmenityIcon = (amenity: string) => {
             {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller')
               ? (property?.isSold 
                 ? "Sold" 
-                : (property?.price === 0 ? "By Negotiation" : `$${property?.price?.toLocaleString() || '0'}`))
+                : (property?.price === 0 ? "By Negotiation" : formatCurrency(property?.price || 0, property?.currency)))
               : (property?.isSold ? "Sold" : `By ${brokerName}`)
             }
           </p>

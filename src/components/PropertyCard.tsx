@@ -9,6 +9,7 @@ import { MapPin, Bed, Bath, Square, CheckCircle2, Heart, ChevronLeft, ChevronRig
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/context/AuthContext";
 import { Property } from "@/types";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function PropertyCard({ property }: { property: Property }) {
  const { toggleFavorite, isFavorited, loading: favLoading } = useFavorites();
@@ -152,7 +153,7 @@ export default function PropertyCard({ property }: { property: Property }) {
  <div className="p-2 sm:p-3 flex flex-col flex-grow relative z-30 bg-white min-w-0">
         <div className="text-sm sm:text-base font-extrabold text-zinc-900 mb-0.5 line-clamp-1">
           {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller') 
-            ? (property?.price === 0 ? "By Negotiation" : `$${property?.price?.toLocaleString() || '0'} ${property.listingType === 'For Rent' ? '/ week' : ''}`)
+            ? (property?.price === 0 ? "By Negotiation" : `${formatCurrency(property.price, property.currency)} ${property.listingType === 'For Rent' ? '/ week' : ''}`)
             : property.title
           }
         </div>

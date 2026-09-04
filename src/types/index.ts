@@ -40,6 +40,7 @@ export interface Property {
  title: string;
  description: string;
  price: number; // Public Asking Price
+ currency?: string; // e.g. "NZD", "USD", "AUD"
  reservePrice?: number; // Hidden minimum price (Only visible to admin)
  city: string;
  suburb: string;
