@@ -47,12 +47,12 @@ export const useAuth = () => useContext(AuthContext);
  unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
  if (docSnap.exists()) {
  const data = docSnap.data() as CustomUser;
- if (firebaseUser.email?.toLowerCase() === 'sanjay00002023@gmail.com') {
+ if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com'].includes(firebaseUser.email?.toLowerCase() || '')) {
  data.role = 'super_admin';
  }
  setUserData(data);
  } else {
- if (firebaseUser.email?.toLowerCase() === 'sanjay00002023@gmail.com') {
+ if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com'].includes(firebaseUser.email?.toLowerCase() || '')) {
  setUserData({
  id: firebaseUser.uid,
  name: firebaseUser.displayName || 'Sanjay Rana',
@@ -66,7 +66,7 @@ export const useAuth = () => useContext(AuthContext);
  }
  }, (error) => {
  console.error("Error listening to user data:", error);
- if (firebaseUser.email?.toLowerCase() === 'sanjay00002023@gmail.com') {
+ if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com'].includes(firebaseUser.email?.toLowerCase() || '')) {
  setUserData({
  id: firebaseUser.uid,
  name: firebaseUser.displayName || 'Sanjay Rana',
