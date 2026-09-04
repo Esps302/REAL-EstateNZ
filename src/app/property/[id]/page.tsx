@@ -368,16 +368,17 @@ const getAmenityIcon = (amenity: string) => {
 
   {/* Enhanced Image Gallery (Premium Airbnb Style) */}
   <div className="mb-8 relative">
-    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[300px] md:h-[450px] lg:h-[500px] rounded-2xl overflow-hidden group/gallery">
+    <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-3 gap-2 h-[300px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden group/gallery">
       {/* Main Large Image */}
       <div 
-        className={`relative w-full h-full cursor-pointer overflow-hidden ${property.images?.length && property.images.length >= 5 ? 'md:col-span-2 md:row-span-2' : 'col-span-1 md:col-span-4 md:row-span-2'}`}
+        className={`relative w-full h-full cursor-pointer overflow-hidden ${property.images?.length && property.images.length >= 7 ? 'md:col-span-4 md:row-span-3' : 'col-span-1 md:col-span-6 md:row-span-3'}`}
         onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
       >
         <Image 
           src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'} 
           alt={property.title}
           fill
+          sizes="(max-width: 768px) 100vw, 66vw"
           className="object-cover transition-transform duration-700 hover:scale-[1.03]"
           priority
         />
@@ -390,33 +391,23 @@ const getAmenityIcon = (amenity: string) => {
         </div>
       </div>
 
-      {/* Extra images for desktop (5+ images layout) */}
-      {property.images && property.images.length >= 5 && (
+      {/* Extra images for desktop (7+ images layout) */}
+      {property.images && property.images.length >= 7 && (
         <>
-          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(1); setIsImageModalOpen(true); }}>
-            <Image src={property.images[1]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
-          </div>
-          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(2); setIsImageModalOpen(true); }}>
-            <Image src={property.images[2]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
-          </div>
-          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(3); setIsImageModalOpen(true); }}>
-            <Image src={property.images[3]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
-          </div>
-          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(4); setIsImageModalOpen(true); }}>
-            <Image src={property.images[4]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
-          </div>
+          {[1, 2, 3, 4, 5, 6].map((idx) => (
+            <div key={idx} className="relative hidden md:block cursor-pointer overflow-hidden md:col-span-1 md:row-span-1" onClick={() => { setCurrentImageIndex(idx); setIsImageModalOpen(true); }}>
+              <Image src={property.images[idx]} alt={property.title} fill sizes="16vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+              <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
+            </div>
+          ))}
         </>
       )}
       
-      {/* Extra images for desktop (2-4 images layout fallback) */}
-      {property.images && property.images.length > 1 && property.images.length < 5 && (
-        property.images.slice(1, 5).map((img, idx) => (
+      {/* Extra images for desktop (fallback for fewer than 7 images but more than 1) */}
+      {property.images && property.images.length > 1 && property.images.length < 7 && (
+        property.images.slice(1, 7).map((img, idx) => (
           <div key={idx} className="relative hidden md:block cursor-pointer overflow-hidden md:col-span-2 md:row-span-1" onClick={() => { setCurrentImageIndex(idx + 1); setIsImageModalOpen(true); }}>
-            <Image src={img} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <Image src={img} alt={property.title} fill sizes="33vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
             <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
         ))
