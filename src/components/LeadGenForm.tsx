@@ -79,7 +79,7 @@ export default function LeadGenForm() {
                     type="text" 
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
-                    placeholder="Sanjay Rana"
+                    placeholder="e.g. Your Name"
                     className="w-full bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl px-4 py-3 text-sm text-zinc-900 outline-none transition-colors"
                   />
                 </label>
@@ -89,7 +89,7 @@ export default function LeadGenForm() {
                     type="tel" 
                     value={formData.phone}
                     onChange={e => setFormData({...formData, phone: e.target.value})}
-                    placeholder="+64 21 000 0000"
+                    placeholder="0987654321"
                     className="w-full bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl px-4 py-3 text-sm text-zinc-900 outline-none transition-colors"
                   />
                 </label>
@@ -101,7 +101,7 @@ export default function LeadGenForm() {
                   type="email" 
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
-                  placeholder="sanjay@example.com"
+                  placeholder="e.g. email@example.com"
                   className="w-full bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl px-4 py-3 text-sm text-zinc-900 outline-none transition-colors"
                 />
               </label>

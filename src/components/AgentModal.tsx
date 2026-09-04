@@ -219,7 +219,7 @@ export default function AgentModal({ isOpen, onClose }: AgentModalProps) {
  required
  value={name}
  onChange={(e) => setName(e.target.value)}
- placeholder="Sanjay Rana"
+ placeholder="e.g. Your Name"
  className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl text-sm text-zinc-900 outline-none transition-colors"
  />
  </div>
@@ -234,7 +234,7 @@ export default function AgentModal({ isOpen, onClose }: AgentModalProps) {
  required
  value={email}
  onChange={(e) => setEmail(e.target.value)}
- placeholder="sanjay@example.com"
+ placeholder="e.g. email@example.com"
  className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl text-sm text-zinc-900 outline-none transition-colors"
  />
  </div>
@@ -250,7 +250,7 @@ export default function AgentModal({ isOpen, onClose }: AgentModalProps) {
  required
  value={phone}
  onChange={(e) => setPhone(e.target.value)}
- placeholder="+64 21 000 0000"
+ placeholder="0987654321"
  className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 focus:border-[var(--color-primary)] focus:bg-white rounded-xl text-sm text-zinc-900 outline-none transition-colors"
  />
  </div>

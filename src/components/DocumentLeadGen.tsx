@@ -148,7 +148,7 @@ export default function DocumentLeadGen({ propertyId, propertyTitle }: DocumentL
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 pl-10 pr-4 text-sm font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                    placeholder="Enter your full name"
+                    placeholder="e.g. Your Name"
                   />
                 </div>
               </div>
@@ -163,7 +163,7 @@ export default function DocumentLeadGen({ propertyId, propertyTitle }: DocumentL
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 pl-10 pr-4 text-sm font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                    placeholder="Enter your email address"
+                    placeholder="e.g. email@example.com"
                   />
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function DocumentLeadGen({ propertyId, propertyTitle }: DocumentL
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 pl-10 pr-4 text-sm font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                    placeholder="Enter your phone number"
+                    placeholder="0987654321"
                   />
                 </div>
               </div>

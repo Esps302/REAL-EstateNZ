@@ -203,7 +203,7 @@ export function ViewingModal({ isOpen, onClose, propertyId, propertyTitle }: Vie
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
                   className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-md text-sm focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] outline-none"
-                  placeholder="Sanjay Rana"
+                  placeholder="e.g. Your Name"
                 />
               </div>
 
@@ -215,7 +215,7 @@ export function ViewingModal({ isOpen, onClose, propertyId, propertyTitle }: Vie
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
                   className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-md text-sm focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] outline-none"
-                  placeholder="sanjayrana@gmail.com"
+                  placeholder="e.g. email@example.com"
                 />
               </div>
 
@@ -227,7 +227,7 @@ export function ViewingModal({ isOpen, onClose, propertyId, propertyTitle }: Vie
                   value={formData.phone}
                   onChange={e => setFormData({...formData, phone: e.target.value})}
                   className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-md text-sm focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] outline-none"
-                  placeholder="e.g., 021 555 1234"
+                  placeholder="0987654321"
                 />
               </div>
 

@@ -218,7 +218,7 @@ export function OfferForm({ property, onSuccess }: OfferFormProps) {
 
  <div>
  <label className="block text-sm font-bold text-zinc-900 mb-2">Phone Number</label>
- <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 021 123 4567" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 font-semibold text-zinc-900 text-sm" />
+ <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} placeholder="0987654321" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 font-semibold text-zinc-900 text-sm" />
  </div>
 
  <div>

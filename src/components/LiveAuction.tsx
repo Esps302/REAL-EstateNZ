@@ -241,7 +241,7 @@ export default function LiveAuction({ propertyId, startingPrice }: LiveAuctionPr
               required
               value={bidderName}
               onChange={(e) => setBidderName(e.target.value)}
-              placeholder="Your Full Name *"
+              placeholder="e.g. Your Name *"
               className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
             />
             <input
@@ -249,7 +249,7 @@ export default function LiveAuction({ propertyId, startingPrice }: LiveAuctionPr
               required
               value={bidderPhone}
               onChange={(e) => setBidderPhone(e.target.value)}
-              placeholder="Mobile Number *"
+              placeholder="0987654321 *"
               className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
             />
           </div>

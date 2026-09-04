@@ -382,7 +382,7 @@ export default function SettingsPage() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
  <div>
  <label className="block text-sm font-semibold text-zinc-700 mb-2">Phone Number</label>
- <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+64 21 000 0000" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-zinc-900 outline-none transition-all text-zinc-900" />
+ <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0987654321" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-zinc-900 outline-none transition-all text-zinc-900" />
  </div>
  <div>
  <label className="block text-sm font-semibold text-zinc-700 mb-2">Location (City, Country)</label>
