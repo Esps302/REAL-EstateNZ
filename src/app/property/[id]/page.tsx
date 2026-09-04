@@ -366,51 +366,78 @@ const getAmenityIcon = (amenity: string) => {
   </button>
   </div>
 
+  {/* Enhanced Image Gallery (Airbnb Style) */}
+  <div className="mb-8 relative">
+    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[300px] md:h-[450px] lg:h-[550px] rounded-2xl overflow-hidden shadow-sm">
+      {/* Main Large Image */}
+      <div 
+        className={`relative w-full h-full cursor-pointer group ${property.images?.length && property.images.length >= 5 ? 'md:col-span-2 md:row-span-2' : 'col-span-1 md:col-span-4 md:row-span-2'}`}
+        onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
+      >
+        <Image 
+          src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'} 
+          alt={property.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300"></div>
+        {/* Labels */}
+        <div className="absolute top-4 left-4 flex gap-2">
+          <div className="bg-white/95 backdrop-blur text-zinc-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md shadow-lg border border-zinc-100/50">
+            {property.propertyType}
+          </div>
+        </div>
+      </div>
+
+      {/* Extra images for desktop (5+ images layout) */}
+      {property.images && property.images.length >= 5 && (
+        <>
+          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(1); setIsImageModalOpen(true); }}>
+            <Image src={property.images[1]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(2); setIsImageModalOpen(true); }}>
+            <Image src={property.images[2]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(3); setIsImageModalOpen(true); }}>
+            <Image src={property.images[3]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(4); setIsImageModalOpen(true); }}>
+            <Image src={property.images[4]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          </div>
+        </>
+      )}
+      
+      {/* Extra images for desktop (2-4 images layout fallback) */}
+      {property.images && property.images.length > 1 && property.images.length < 5 && (
+        property.images.slice(1, 5).map((img, idx) => (
+          <div key={idx} className="relative hidden md:block cursor-pointer group overflow-hidden md:col-span-2 md:row-span-1" onClick={() => { setCurrentImageIndex(idx + 1); setIsImageModalOpen(true); }}>
+            <Image src={img} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          </div>
+        ))
+      )}
+    </div>
+
+    {/* View All Photos Button */}
+    {property.images && property.images.length > 1 && (
+      <button 
+        onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
+        className="absolute bottom-5 right-5 bg-white hover:bg-zinc-50 text-zinc-900 px-5 py-2.5 rounded-lg font-bold text-sm shadow-xl flex items-center gap-2 transition-all border border-zinc-200 active:scale-95"
+      >
+        <AppWindow className="w-4 h-4" />
+        Show all {property.images.length} photos
+      </button>
+    )}
+  </div>
+
   <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column (Main Content) */}
         <div className="flex-1 min-w-0">
-          
-          {/* Functional Image Gallery */}
-          <div className="mb-6">
-            <div className="bg-black relative border border-zinc-300 rounded-sm overflow-hidden shadow-sm">
-              <div 
-                className="relative aspect-[16/9] md:aspect-[21/9] w-full bg-zinc-100 cursor-pointer group"
-                onClick={() => setIsImageModalOpen(true)}
-              >
-                <Image 
-                  src={property.images?.[currentImageIndex] || property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'} 
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                  <div className="bg-white/90 backdrop-blur text-zinc-900 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm shadow-md">
-                    {property.propertyType}
-                  </div>
-                  <div className="bg-black/50 backdrop-blur text-white px-3 py-1 text-xs font-medium rounded-sm border border-white/20">
-                    {currentImageIndex + 1} / {property.images?.length || 1}
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Thumbnails Gallery */}
-            {(property.images && property.images.length > 0) && (
-              <div className="flex gap-2 overflow-x-auto pt-3 pb-1 scrollbar-hide">
-                {property.images.map((img, idx) => (
-                  <div 
-                    key={idx} 
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`relative w-32 h-20 flex-shrink-0 cursor-pointer overflow-hidden border-2 ${idx === currentImageIndex ? 'border-[#0073e6]' : 'border-zinc-300 opacity-70 hover:opacity-100'} rounded-sm transition-all`}
-                  >
-                    <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
           
           {/* Mobile Actions - ONLY VISIBLE ON MOBILE */}
           <div className="block lg:hidden mt-2 mb-6">
