@@ -85,7 +85,7 @@ export default function EditPropertyPage() {
            return;
          }
 
-         setOriginalProperty({ id: docSnap.id, ...data });
+         setOriginalProperty({ ...data, id: docSnap.id });
          
          setFormData({
            title: data.title || "",
