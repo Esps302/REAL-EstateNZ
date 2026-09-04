@@ -20,6 +20,13 @@ const AVAILABLE_AMENITIES = [
  "Double Glazed Windows", "Elevator / Lift Access", "Fireplace", "Secure Parking", "Wheelchair Accessible"
 ];
 
+const CURRENCIES = [
+  "NZD", "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "CNY", 
+  "JPY", "INR", "SGD", "HKD", "ZAR", "AED", "SAR", "MXN", 
+  "BRL", "RUB", "KRW", "SEK", "NOK", "DKK", "TRY", "THB",
+  "IDR", "MYR", "PHP", "VND", "PLN", "ARS", "CLP", "COP"
+];
+
 export default function SellPage() {
  const { user, userData, loading, wallet } = useAuth();
  const router = useRouter();
@@ -374,14 +381,12 @@ export default function SellPage() {
  <div>
  <label className="block text-sm font-semibold mb-2 text-zinc-700">Public Asking Price</label>
  <div className="flex gap-2">
-   <select name="currency" value={formData.currency} onChange={handleChange} className="w-1/3 px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900 font-bold">
-     <option value="NZD">NZD ($)</option>
-     <option value="USD">USD ($)</option>
-     <option value="AUD">AUD ($)</option>
-     <option value="EUR">EUR (€)</option>
-     <option value="GBP">GBP (£)</option>
+   <select name="currency" value={formData.currency} onChange={handleChange} className="w-[110px] shrink-0 px-2 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900 font-bold text-center appearance-none cursor-pointer">
+     {CURRENCIES.map(code => (
+       <option key={code} value={code}>{code}</option>
+     ))}
    </select>
-   <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 850000" className="w-2/3 px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+   <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 850000" className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
  </div>
  </div>
  <div>
