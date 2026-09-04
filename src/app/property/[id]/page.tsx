@@ -5,7 +5,7 @@ import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase
 import { db } from "@/lib/firebase";
 import { Property } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { MapPin, Bed, Bath, Square, ChevronRight, Heart, ShieldCheck, Check, CheckCircle, HelpCircle, Landmark, Briefcase, Activity, Home, Calendar, Car, Info, UserCircle, Phone, Mail, X, ChevronLeft, Waves, Wind, Flame, TreePine, Dumbbell, Sun, Wifi, Monitor, PawPrint, Mountain, Utensils, ArrowUpDown, AppWindow, Star, MessageCircle, FileText, TrendingUp, Download, PieChart, Clock } from "lucide-react";
+import { MapPin, Bed, Bath, Square, ChevronRight, Heart, ShieldCheck, Check, CheckCircle, HelpCircle, Landmark, Briefcase, Activity, Home, Calendar, Car, Info, UserCircle, Phone, Mail, X, ChevronLeft, Waves, Wind, Flame, TreePine, Dumbbell, Sun, Wifi, Monitor, PawPrint, Mountain, Utensils, ArrowUpDown, AppWindow, Star, MessageCircle, FileText, TrendingUp, Download, PieChart, Clock, Edit } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 import Image from "next/image";
@@ -357,14 +357,21 @@ const getAmenityIcon = (amenity: string) => {
   {property.address ? `${property.address}, ` : ''}{property.suburb}, {property.city}
   </p>
   </div>
-  <button 
-  onClick={() => toggleFavorite(property.id)}
-  disabled={favLoading}
-  className="flex items-center gap-2 text-blue-600 font-semibold text-sm hover:underline"
-  >
-  <Heart className={`w-5 h-5 ${isFav ? 'fill-blue-600' : ''}`} />
-  {isFav ? 'Saved to Watchlist' : 'Add to Watchlist'}
-  </button>
+  <div className="flex flex-col items-end gap-3">
+    {(user?.uid === property.ownerId || userData?.role === 'admin' || userData?.role === 'super_admin') && (
+      <Link href={`/edit-property/${property.id}`} className="flex items-center gap-2 bg-white text-zinc-900 border border-zinc-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-zinc-50 transition-colors shadow-sm">
+        <Edit className="w-4 h-4" /> Edit Property
+      </Link>
+    )}
+    <button 
+    onClick={() => toggleFavorite(property.id)}
+    disabled={favLoading}
+    className="flex items-center gap-2 text-blue-600 font-semibold text-sm hover:underline"
+    >
+    <Heart className={`w-5 h-5 ${isFav ? 'fill-blue-600' : ''}`} />
+    {isFav ? 'Saved to Watchlist' : 'Add to Watchlist'}
+    </button>
+  </div>
   </div>
 
   {/* Enhanced Image Gallery (Premium Airbnb Style) */}

@@ -14,7 +14,8 @@ import {
  Search, 
  Filter, 
  ExternalLink,
- Eye
+ Eye,
+ Edit
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -290,6 +291,10 @@ export default function AdminPropertiesPage() {
  <button onClick={() => setPreviewProperty(property)} className="p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Quick Preview">
  <Eye className="w-4 h-4" />
  </button>
+ 
+ <Link href={`/edit-property/${property.id}`} className="p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Property">
+ <Edit className="w-4 h-4" />
+ </Link>
  
  <Link href={`/property/${property.id}`} target="_blank" className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Public Page">
  <ExternalLink className="w-4 h-4" />
