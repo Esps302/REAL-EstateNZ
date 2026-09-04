@@ -366,25 +366,25 @@ const getAmenityIcon = (amenity: string) => {
   </button>
   </div>
 
-  {/* Enhanced Image Gallery (Airbnb Style) */}
+  {/* Enhanced Image Gallery (Premium Airbnb Style) */}
   <div className="mb-8 relative">
-    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[300px] md:h-[450px] lg:h-[550px] rounded-2xl overflow-hidden shadow-sm">
+    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[300px] md:h-[450px] lg:h-[500px] rounded-2xl overflow-hidden group/gallery">
       {/* Main Large Image */}
       <div 
-        className={`relative w-full h-full cursor-pointer group ${property.images?.length && property.images.length >= 5 ? 'md:col-span-2 md:row-span-2' : 'col-span-1 md:col-span-4 md:row-span-2'}`}
+        className={`relative w-full h-full cursor-pointer overflow-hidden ${property.images?.length && property.images.length >= 5 ? 'md:col-span-2 md:row-span-2' : 'col-span-1 md:col-span-4 md:row-span-2'}`}
         onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
       >
         <Image 
           src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'} 
           alt={property.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          className="object-cover transition-transform duration-700 hover:scale-[1.03]"
           priority
         />
-        <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300"></div>
+        <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
         {/* Labels */}
-        <div className="absolute top-4 left-4 flex gap-2">
-          <div className="bg-white/95 backdrop-blur text-zinc-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md shadow-lg border border-zinc-100/50">
+        <div className="absolute top-4 left-4 flex gap-2 pointer-events-none">
+          <div className="bg-white/95 backdrop-blur-md text-zinc-900 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md shadow-sm border border-white/50">
             {property.propertyType}
           </div>
         </div>
@@ -393,21 +393,21 @@ const getAmenityIcon = (amenity: string) => {
       {/* Extra images for desktop (5+ images layout) */}
       {property.images && property.images.length >= 5 && (
         <>
-          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(1); setIsImageModalOpen(true); }}>
-            <Image src={property.images[1]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(1); setIsImageModalOpen(true); }}>
+            <Image src={property.images[1]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
-          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(2); setIsImageModalOpen(true); }}>
-            <Image src={property.images[2]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(2); setIsImageModalOpen(true); }}>
+            <Image src={property.images[2]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
-          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(3); setIsImageModalOpen(true); }}>
-            <Image src={property.images[3]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(3); setIsImageModalOpen(true); }}>
+            <Image src={property.images[3]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
-          <div className="relative hidden md:block cursor-pointer group overflow-hidden" onClick={() => { setCurrentImageIndex(4); setIsImageModalOpen(true); }}>
-            <Image src={property.images[4]} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          <div className="relative hidden md:block cursor-pointer overflow-hidden" onClick={() => { setCurrentImageIndex(4); setIsImageModalOpen(true); }}>
+            <Image src={property.images[4]} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
         </>
       )}
@@ -415,9 +415,9 @@ const getAmenityIcon = (amenity: string) => {
       {/* Extra images for desktop (2-4 images layout fallback) */}
       {property.images && property.images.length > 1 && property.images.length < 5 && (
         property.images.slice(1, 5).map((img, idx) => (
-          <div key={idx} className="relative hidden md:block cursor-pointer group overflow-hidden md:col-span-2 md:row-span-1" onClick={() => { setCurrentImageIndex(idx + 1); setIsImageModalOpen(true); }}>
-            <Image src={img} alt={property.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+          <div key={idx} className="relative hidden md:block cursor-pointer overflow-hidden md:col-span-2 md:row-span-1" onClick={() => { setCurrentImageIndex(idx + 1); setIsImageModalOpen(true); }}>
+            <Image src={img} alt={property.title} fill className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
         ))
       )}
@@ -427,7 +427,7 @@ const getAmenityIcon = (amenity: string) => {
     {property.images && property.images.length > 1 && (
       <button 
         onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
-        className="absolute bottom-5 right-5 bg-white hover:bg-zinc-50 text-zinc-900 px-5 py-2.5 rounded-lg font-bold text-sm shadow-xl flex items-center gap-2 transition-all border border-zinc-200 active:scale-95"
+        className="absolute bottom-6 right-6 bg-white hover:bg-zinc-100 text-zinc-900 px-4 py-2.5 rounded-lg font-bold text-sm shadow-[0_2px_15px_rgb(0,0,0,0.1)] flex items-center gap-2 transition-all border border-zinc-200 active:scale-95 z-10"
       >
         <AppWindow className="w-4 h-4" />
         Show all {property.images.length} photos
