@@ -51,18 +51,18 @@ export function Footer() {
  <div className="w-full md:w-auto flex flex-col items-start lg:items-start text-left">
  <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Contact Us</h3>
  <ul className="space-y-3 text-base">
- <li className="flex items-start gap-3 text-left">
- <MapPin className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
- <span>Level 32, PwC Tower<br />15 Customs Street West<br />Auckland 1010, NZ</span>
- </li>
- <li className="flex items-center gap-3 text-left">
- <Phone className="w-4 h-4 text-zinc-500 flex-shrink-0" />
- <span>+64 9 123 4567</span>
- </li>
- <li className="flex items-center gap-3 text-left">
- <Mail className="w-4 h-4 text-zinc-500 flex-shrink-0" />
- <span>brokerage@heavenbricks.com</span>
- </li>
+  <li className="flex items-start gap-3 text-left">
+  <MapPin className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
+  <span>6 emerald Avenue<br />Rosehill Papakura<br />Auckland NZ 2113</span>
+  </li>
+  <li className="flex items-center gap-3 text-left">
+  <Phone className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+  <span>+64 210468503</span>
+  </li>
+  <li className="flex items-center gap-3 text-left">
+  <Mail className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+  <span>Info@spsolutions.org.nz</span>
+  </li>
  </ul>
  </div>
 

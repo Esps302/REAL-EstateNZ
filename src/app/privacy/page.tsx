@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
           <div className="mt-16 p-8 bg-zinc-50 rounded-2xl border border-zinc-100">
             <h3 className="text-xl font-bold mb-4">Contact Our Privacy Officer</h3>
             <p className="text-zinc-600 mb-0">
-              If you have any concerns about how your data is handled, our dedicated Data Protection Officer is available to assist you directly at <strong>privacy@heavenbricks.com</strong>.
+              If you have any concerns about how your data is handled, our dedicated Data Protection Officer is available to assist you directly at <strong>Info@spsolutions.org.nz</strong>.
             </p>
           </div>
         </div>

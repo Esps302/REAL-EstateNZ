@@ -12,12 +12,12 @@ export default function ContactPage() {
             
             <div className="pt-6 border-t border-zinc-100">
               <h3 className="text-lg font-bold text-zinc-900 mb-2">Auckland Office</h3>
-              <p className="text-zinc-600">Level 32, PwC Tower</p>
-              <p className="text-zinc-600">15 Customs Street West</p>
-              <p className="text-zinc-600 mb-4">Auckland 1010, NZ</p>
+              <p className="text-zinc-600">6 emerald Avenue</p>
+              <p className="text-zinc-600">Rosehill Papakura</p>
+              <p className="text-zinc-600 mb-4">Auckland NZ 2113</p>
               
-              <p className="text-zinc-900 font-medium">Email: <a href="mailto:brokerage@nzestates.com" className="text-blue-600 hover:underline">brokerage@nzestates.com</a></p>
-              <p className="text-zinc-900 font-medium mt-1">Phone: +64 9 123 4567</p>
+              <p className="text-zinc-900 font-medium">Email: <a href="mailto:Info@spsolutions.org.nz" className="text-blue-600 hover:underline">Info@spsolutions.org.nz</a></p>
+              <p className="text-zinc-900 font-medium mt-1">Phone: +64 210468503</p>
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ export default function TermsOfService() {
           <div className="mt-16 p-8 bg-zinc-50 rounded-2xl border border-zinc-100">
             <h3 className="text-xl font-bold mb-4">Questions about these terms?</h3>
             <p className="text-zinc-600 mb-0">
-              We want you to feel completely comfortable using our platform. If anything in these terms is unclear, please reach out to our legal team at <strong>legal@heavenbricks.com</strong>.
+              We want you to feel completely comfortable using our platform. If anything in these terms is unclear, please reach out to our legal team at <strong>Info@spsolutions.org.nz</strong>.
             </p>
           </div>
         </div>
