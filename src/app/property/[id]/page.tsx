@@ -63,6 +63,8 @@ const getAmenityIcon = (amenity: string) => {
   const [isViewingModalOpen, setIsViewingModalOpen] = useState(false);
 
   const [brokerName, setBrokerName] = useState("Mike Pankaj");
+  const [brokerPhone, setBrokerPhone] = useState("021 555 0192");
+  const [brokerEmail, setBrokerEmail] = useState("j.harrison@nzestates.co.nz");
   const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/mike_pankaj.png");
 
   useEffect(() => {
@@ -86,6 +88,8 @@ const getAmenityIcon = (amenity: string) => {
           if (settingsSnap.exists()) {
             const data = settingsSnap.data();
             if (data.brokerName) setBrokerName(data.brokerName);
+            if (data.brokerPhone) setBrokerPhone(data.brokerPhone);
+            if (data.brokerEmail) setBrokerEmail(data.brokerEmail);
             if (data.brokerAvatarUrl) setBrokerAvatarUrl(data.brokerAvatarUrl);
           }
         } catch (e) {
@@ -109,13 +113,12 @@ const getAmenityIcon = (amenity: string) => {
       {/* Price Header */}
       <div className="p-5 border-b border-zinc-100 bg-gradient-to-b from-white to-zinc-50 flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-[#0073e6] uppercase tracking-wider mb-1">Pricing Strategy</p>
           <p className="text-2xl font-extrabold text-zinc-900 leading-tight">
-            {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller')
+            {(userData?.role === 'admin' || userData?.role === 'super_admin' || (user?.uid && property?.ownerId === user.uid))
               ? (property?.isSold 
                 ? "Sold" 
                 : (property?.price === 0 ? "By Negotiation" : `${formatCurrency(property?.price || 0, property?.currency)}${property?.listingType === 'For Rent' ? (property?.rentFrequency === 'Monthly' ? ' / month' : ' / week') : ''}`))
-              : (property?.isSold ? "Sold" : `By ${brokerName}`)
+              : (property?.isSold ? "Sold" : `By Negotiation`)
             }
           </p>
           <p className="text-xs text-zinc-500 mt-1">Submit an offer to see Smart Match probability</p>
@@ -158,7 +161,8 @@ const getAmenityIcon = (amenity: string) => {
 
   const handleContactAgent = () => {
     // New Zealand number format (replace with your actual business number, ensure country code is present)
-    const phoneNumber = "64215550192"; // 021 555 0192 -> +64 21 555 0192
+    const phoneNumber = brokerPhone.replace(/\D/g, ''); // Extract only digits
+
     
     // Construct the pre-filled message
     const message = `Hi Mike, I am interested in ${property?.title || "your property listing"}. Could you please let me know the price?`;
@@ -256,17 +260,17 @@ const getAmenityIcon = (amenity: string) => {
 
           {/* Contact Info Grid */}
           <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-            <a href="tel:0215550192" className="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50/50 rounded-xl border border-zinc-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group/contact cursor-pointer overflow-hidden">
+            <a href={`tel:${brokerPhone.replace(/\D/g, '')}`} className="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50/50 rounded-xl border border-zinc-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group/contact cursor-pointer overflow-hidden">
               <div className="absolute inset-0 bg-blue-50/0 group-hover/contact:bg-blue-50/30 transition-colors"></div>
               <Phone className="w-5 h-5 text-zinc-400 group-hover/contact:text-blue-600 mb-2 transition-colors relative z-10" />
               <span className="text-[10px] font-black text-zinc-800 uppercase tracking-widest relative z-10">Call</span>
-              <span className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">021 555 0192</span>
+              <span className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">{brokerPhone}</span>
             </a>
-            <a href="mailto:j.harrison@nzestates.co.nz" className="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50/50 rounded-xl border border-zinc-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group/contact cursor-pointer overflow-hidden">
+            <a href={`mailto:${brokerEmail}`} className="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50/50 rounded-xl border border-zinc-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group/contact cursor-pointer overflow-hidden">
               <div className="absolute inset-0 bg-blue-50/0 group-hover/contact:bg-blue-50/30 transition-colors"></div>
               <Mail className="w-5 h-5 text-zinc-400 group-hover/contact:text-blue-600 mb-2 transition-colors relative z-10" />
               <span className="text-[10px] font-black text-zinc-800 uppercase tracking-widest relative z-10">Email</span>
-              <span className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">j.harrison@...</span>
+              <span className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">{brokerEmail.length > 15 ? brokerEmail.substring(0, 12) + '...' : brokerEmail}</span>
             </a>
           </div>
           
@@ -581,8 +585,8 @@ const getAmenityIcon = (amenity: string) => {
             </div>
           </div>
 
-          {/* Mortgage Calculator */}
-          {property.listingType === "For Sale" && (
+          {/* Mortgage Calculator - only visible to admin/owner to protect confidential price */}
+          {(userData?.role === 'admin' || userData?.role === 'super_admin' || (user?.uid && property?.ownerId === user.uid)) && property.listingType === "For Sale" && (
             <MortgageCalculator propertyPrice={property.price || 0} />
           )}
 

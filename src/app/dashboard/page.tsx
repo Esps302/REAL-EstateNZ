@@ -10,6 +10,9 @@ import { collection, query, where, getDocs, documentId, doc, updateDoc } from 'f
 import { useFavorites } from "@/hooks/useFavorites";
 import PropertyCard from "@/components/PropertyCard";
 
+import { Tag, Clock, Calendar } from "lucide-react";
+import { formatCurrency } from "@/utils/formatCurrency";
+
 export default function DashboardPage() {
  const { user, userData, loading } = useAuth();
  const router = useRouter();
@@ -20,6 +23,9 @@ export default function DashboardPage() {
 
  const [myProperties, setMyProperties] = useState<any[]>([]);
  const [fetchingListings, setFetchingListings] = useState(false);
+
+ const [myOffers, setMyOffers] = useState<any[]>([]);
+ const [fetchingOffers, setFetchingOffers] = useState(false);
 
  useEffect(() => {
  if (!loading && !user) {
@@ -70,7 +76,7 @@ export default function DashboardPage() {
  };
 
  fetchSavedProperties();
- }, [favorites]);
+ }, [favorites, user]);
 
  useEffect(() => {
  const fetchMyListings = async () => {
@@ -95,9 +101,57 @@ export default function DashboardPage() {
  fetchMyListings();
  }, [user]);
 
- if (loading || !user) {
- return <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-bold text-zinc-900">Loading...</div>;
+ useEffect(() => {
+ const fetchMyOffers = async () => {
+ if (!user) return;
+ setFetchingOffers(true);
+ try {
+ const q = query(collection(db, "offers"), where("buyerId", "==", user.uid));
+ const snap = await getDocs(q);
+ const list: any[] = [];
+ snap.forEach(d => {
+ list.push({ id: d.id, ...d.data() });
+ });
+ list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+ setMyOffers(list);
+ } catch (err) {
+ console.error("Error fetching my offers:", err);
+ } finally {
+ setFetchingOffers(false);
  }
+ };
+
+ fetchMyOffers();
+ }, [user]);
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 font-sans py-10 animate-pulse">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl overflow-hidden mb-10 border border-zinc-200 bg-white">
+            <div className="h-48 bg-zinc-200"></div>
+            <div className="px-8 pb-8 pt-0 flex gap-6 items-end">
+              <div className="-mt-16 w-32 h-32 rounded-full border-4 border-white bg-zinc-300"></div>
+              <div className="space-y-3 pb-2">
+                <div className="h-8 w-48 bg-zinc-200 rounded-lg"></div>
+                <div className="h-4 w-32 bg-zinc-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1 h-64 bg-white rounded-2xl border border-zinc-200"></div>
+            <div className="lg:col-span-3 space-y-6">
+              <div className="h-10 w-48 bg-zinc-200 rounded-lg"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="h-72 bg-white rounded-2xl border border-zinc-200"></div>
+                <div className="h-72 bg-white rounded-2xl border border-zinc-200"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
  return (
  <div className="bg-zinc-50 font-sans min-h-screen py-10">
@@ -142,6 +196,16 @@ export default function DashboardPage() {
  <nav className="space-y-2 font-medium">
  <a href="#saved" className="flex items-center gap-3 px-4 py-3 bg-zinc-900 text-white rounded-xl transition-colors shadow-sm">
  <Heart className="w-5 h-5" /> Saved Properties
+ </a>
+ <a href="#offers" className="flex items-center justify-between px-4 py-3 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-xl transition-colors">
+ <div className="flex items-center gap-3">
+ <Tag className="w-5 h-5" /> My Submitted Offers
+ </div>
+ {myOffers.length > 0 && (
+ <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+ {myOffers.length}
+ </span>
+ )}
  </a>
  {(userData?.role === 'seller' || userData?.role === 'admin' || userData?.role === 'super_admin') && (
  <a href="#listings" className="flex items-center gap-3 px-4 py-3 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-xl transition-colors">
@@ -189,6 +253,88 @@ export default function DashboardPage() {
  </div>
  )}
  </section>
+
+  {/* My Offers (Buyer sees ONLY their own price) */}
+  <section id="offers" className="pt-8 border-t border-zinc-200">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
+        <Tag className="w-6 h-6 text-zinc-900" /> My Submitted Offers
+      </h2>
+      <span className="text-xs font-semibold text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full">
+        Confidential To You
+      </span>
+    </div>
+
+    {fetchingOffers ? (
+      <div className="text-zinc-500 font-medium">Loading your offers...</div>
+    ) : myOffers.length > 0 ? (
+      <div className="grid grid-cols-1 gap-4">
+        {myOffers.map((offer) => (
+          <div key={offer.id} className="bg-white rounded-2xl p-5 border border-zinc-200 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-zinc-100 flex-shrink-0">
+                <img 
+                  src={offer.propertyDetails?.image || "/hero.png"} 
+                  alt={offer.propertyDetails?.title || "Property"} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="min-w-0">
+                <Link href={`/property/${offer.propertyId}`} className="text-base font-bold text-zinc-900 hover:text-blue-600 transition-colors line-clamp-1">
+                  {offer.propertyDetails?.title || "Property Offer"}
+                </Link>
+                <p className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {offer.propertyDetails?.address || "New Zealand"}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full capitalize ${
+                    offer.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                    offer.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>
+                    {offer.status === 'accepted' ? 'Offer Accepted' : offer.status === 'rejected' ? 'Declined' : 'Pending Broker Review'}
+                  </span>
+                  {offer.createdAt && (
+                    <span className="text-[11px] text-zinc-400">
+                      Submitted {new Date(offer.createdAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Buyer's Own Price */}
+            <div className="flex md:flex-col items-end justify-between w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-zinc-100">
+              <div className="text-right">
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Your Offered Price</span>
+                <span className="text-2xl font-black text-emerald-600">
+                  {formatCurrency(offer.offerPrice, "NZD")}
+                </span>
+              </div>
+              <Link 
+                href={`/property/${offer.propertyId}`}
+                className="mt-2 text-xs font-bold text-zinc-900 hover:bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200 transition-colors inline-block"
+              >
+                View Property
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="bg-white rounded-3xl p-10 text-center border border-zinc-200 shadow-sm">
+        <Tag className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
+        <h3 className="text-base font-bold text-zinc-900 mb-1">No offers submitted yet</h3>
+        <p className="text-zinc-500 text-xs max-w-sm mx-auto mb-4">
+          When you submit an offer on any property, your confidential price and status will be tracked here.
+        </p>
+        <Link href="/search" className="inline-block bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-2 px-5 rounded-xl text-xs transition-colors">
+          Explore Properties
+        </Link>
+      </div>
+    )}
+  </section>
 
  {/* My Listings */}
  {(userData?.role === 'seller' || userData?.role === 'admin' || userData?.role === 'super_admin') && (

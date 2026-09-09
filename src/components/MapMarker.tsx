@@ -11,7 +11,8 @@ interface MapMarkerProps {
 }
 
 export function MapMarker({ property, icon, isHovered }: MapMarkerProps) {
-  const { userData } = useAuth();
+  const { user, userData } = useAuth();
+  const canSeePrice = userData?.role === 'admin' || userData?.role === 'super_admin' || (!!user?.uid && property.ownerId === user.uid);
   const markerRef = useRef<L.Marker>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -71,7 +72,7 @@ export function MapMarker({ property, icon, isHovered }: MapMarkerProps) {
             </div>
           </div>
           <div className="font-extrabold text-lg text-zinc-900">
-            {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller')
+            {canSeePrice
               ? (property.isSold 
                 ? "Sold" 
                 : (property.price === 0 ? "By Negotiation" : `$${property.price.toLocaleString()}`))

@@ -11,8 +11,10 @@ service cloud.firestore {
       return isAuthenticated() && (
         request.auth.token.email == 'sanjay00002023@gmail.com' ||
         request.auth.token.email == 'realestatenz01@gmail.com' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin'
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin'
+        ))
       );
     }
     
@@ -77,8 +79,76 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    match /leads/{leadId} {
+      // Anyone (guests/authenticated users) can submit a lead inquiry
+      allow create: if true;
+      // Only admins can view, update or delete CRM leads
+      allow read, update, delete: if isAdmin();
+    }
+    
+    match /settings/{settingId} {
+      // Public site settings like broker info are viewable by everyone
+      allow read: if true;
+      // Only admins can modify site settings
+      allow write: if isAdmin();
+    }
+    
+    match /viewings/{viewingId} {
+      allow create: if true;
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        resource.data.userId == request.auth.uid ||
+        (request.auth.token.email != null && resource.data.email == request.auth.token.email)
+      );
+      allow update, delete: if isAdmin();
+    }
+    
+    match /offers/{offerId} {
+      allow create: if isAuthenticated() && request.resource.data.buyerId == request.auth.uid;
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        resource.data.buyerId == request.auth.uid || 
+        resource.data.sellerId == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        resource.data.buyerId == request.auth.uid || 
+        resource.data.sellerId == request.auth.uid
+      );
+      allow delete: if isAdmin();
+    }
+    
+    match /mortgages/{id} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+    
+    match /solicitors/{id} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+    
+    match /conversations/{conversationId} {
+      allow read, write: if isAuthenticated() && (
+        isAdmin() || 
+        resource.data.participants.hasAny([request.auth.uid]) ||
+        request.resource.data.participants.hasAny([request.auth.uid])
+      );
+      
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+    
+    match /properties/{propertyId}/bids/{bidId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.bidderId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
+

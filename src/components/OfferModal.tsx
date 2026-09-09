@@ -16,7 +16,7 @@ export function OfferModal({ property, isOpen, onClose }: OfferModalProps) {
 
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm">
- <div className="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-zinc-200 flex flex-col relative custom-scrollbar">
+ <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in fade-in zoom-in duration-200 custom-scrollbar">
  
  {/* Header */}
  <div className="sticky top-0 bg-white/90 backdrop-blur-md px-6 py-4 border-b border-zinc-100 flex items-center justify-between z-10">

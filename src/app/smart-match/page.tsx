@@ -143,6 +143,8 @@ export default function SmartMatchPage() {
 
 const SwipeableCard = forwardRef<SwipeableCardRef, { property: Property, onSwipe: (dir: "left" | "right") => void }>(({ property, onSwipe }, ref) => {
   const router = useRouter();
+  const { user, userData } = useAuth();
+  const canSeePrice = userData?.role === 'admin' || userData?.role === 'super_admin' || (!!user?.uid && property.ownerId === user.uid);
   const controls = useAnimation();
   const [exitX, setExitX] = useState(0);
   const [swipeDir, setSwipeDir] = useState<"left" | "right" | null>(null);
@@ -239,7 +241,7 @@ const SwipeableCard = forwardRef<SwipeableCardRef, { property: Property, onSwipe
         <div className="flex items-end justify-between mb-2">
           <div>
             <h2 className="text-3xl font-bold tracking-tight mb-1 drop-shadow-md">
-              ${(property.price || 0).toLocaleString()}
+              {canSeePrice ? `$${(property.price || 0).toLocaleString()}` : "Price on Enquiry"}
             </h2>
             <div className="flex items-center gap-2 text-zinc-300 font-medium">
               <MapPin className="w-4 h-4" />

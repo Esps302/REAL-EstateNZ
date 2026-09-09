@@ -13,7 +13,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function PropertyCard({ property }: { property: Property }) {
  const { toggleFavorite, isFavorited, loading: favLoading } = useFavorites();
- const { userData } = useAuth();
+ const { user, userData } = useAuth();
+ const canSeePrice = userData?.role === 'admin' || userData?.role === 'super_admin' || (!!user?.uid && property.ownerId === user.uid);
  const [currentImageIndex, setCurrentImageIndex] = useState(0);
  const [isHovered, setIsHovered] = useState(false);
  const [mounted, setMounted] = useState(false);
@@ -152,14 +153,14 @@ export default function PropertyCard({ property }: { property: Property }) {
 
  <div className="p-2 sm:p-3 flex flex-col flex-grow relative z-30 bg-white min-w-0">
         <div className="text-sm sm:text-base font-extrabold text-zinc-900 mb-0.5 line-clamp-1">
-          {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller') 
+          {canSeePrice 
             ? (property?.price === 0 ? "By Negotiation" : `${formatCurrency(property.price, property.currency)} ${property.listingType === 'For Rent' ? (property.rentFrequency === 'Monthly' ? '/ month' : '/ week') : ''}`)
             : property.title
           }
         </div>
         <div className="flex items-center justify-between mb-1">
           <div className="text-xs sm:text-sm font-bold text-zinc-700 line-clamp-1">
-            {(userData?.role === 'admin' || userData?.role === 'super_admin' || userData?.role === 'seller') ? property.title : property.listingType}
+            {canSeePrice ? property.title : property.listingType}
           </div>
           {property.averageRating ? (
             <div className="flex items-center gap-1 text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded text-[10px] font-extrabold border border-amber-200">

@@ -14,6 +14,8 @@ export default function AdminSettingsPage() {
   const router = useRouter();
 
   const [brokerName, setBrokerName] = useState("Mike Pankaj");
+  const [brokerPhone, setBrokerPhone] = useState("021 555 0192");
+  const [brokerEmail, setBrokerEmail] = useState("j.harrison@nzestates.co.nz");
   const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/mike_pankaj.png");
   
   const [isUploading, setIsUploading] = useState(false);
@@ -36,6 +38,8 @@ export default function AdminSettingsPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.brokerName) setBrokerName(data.brokerName);
+          if (data.brokerPhone) setBrokerPhone(data.brokerPhone);
+          if (data.brokerEmail) setBrokerEmail(data.brokerEmail);
           if (data.brokerAvatarUrl) setBrokerAvatarUrl(data.brokerAvatarUrl);
         }
       } catch (error) {
@@ -70,6 +74,8 @@ export default function AdminSettingsPage() {
     try {
       await setDoc(doc(db, "settings", "site"), {
         brokerName,
+        brokerPhone,
+        brokerEmail,
         brokerAvatarUrl,
         updatedAt: Date.now()
       }, { merge: true });
@@ -156,6 +162,30 @@ export default function AdminSettingsPage() {
               onChange={(e) => setBrokerName(e.target.value)}
               className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
               placeholder="e.g., Mike Pankaj"
+            />
+          </div>
+
+          {/* Phone Input */}
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 mb-2">Broker Phone Number</label>
+            <input 
+              type="text" 
+              value={brokerPhone}
+              onChange={(e) => setBrokerPhone(e.target.value)}
+              className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
+              placeholder="e.g., 021 555 0192"
+            />
+          </div>
+
+          {/* Email Input */}
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 mb-2">Broker Email</label>
+            <input 
+              type="email" 
+              value={brokerEmail}
+              onChange={(e) => setBrokerEmail(e.target.value)}
+              className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
+              placeholder="e.g., agent@example.com"
             />
           </div>
 

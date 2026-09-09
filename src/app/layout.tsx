@@ -8,13 +8,37 @@ import SplashScreen from "@/components/SplashScreen";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const outfit = Outfit({ 
+  subsets: ["latin"], 
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Heaven Bricks | Premium Real Estate",
+  metadataBase: new URL("https://www.heavenbrick.com"),
+  alternates: {
+    canonical: "/",
+  },
+  title: {
+    default: "Heaven Bricks | Premium Real Estate Brokerage",
+    template: "%s | Heaven Bricks",
+  },
   description: "Find your dream home in New Zealand with Heaven Bricks, the premium real estate platform.",
+  openGraph: {
+    type: "website",
+    locale: "en_NZ",
+    url: "https://www.heavenbrick.com",
+    siteName: "Heaven Bricks",
+    title: "Heaven Bricks | Premium Real Estate Brokerage",
+    description: "Find your dream home in New Zealand with Heaven Bricks.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Heaven Bricks | Premium Real Estate Brokerage",
+    description: "Find your dream home in New Zealand with Heaven Bricks.",
+  },
 };
 
 export const viewport = {
