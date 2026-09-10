@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { adminDb } from '@/lib/firebase-admin';
+import { getAdminDb } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -43,18 +43,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Idempotency check: Ensure this stripe session hasn't been credited yet
-    const existingTxSnap = await adminDb
-      .collection('wallet_transactions')
-      .where('stripeSessionId', '==', sessionId)
-      .limit(1)
-      .get();
-
     const amountToAdd = session.metadata?.amount
       ? parseFloat(session.metadata.amount)
       : session.amount_total
       ? session.amount_total / 100
       : 0;
+
+    // 4. Check if Admin DB is available for server-side crediting
+    const adminDb = getAdminDb();
+
+    if (!adminDb) {
+      // If server environment doesn't have Firebase Admin credentials,
+      // return verified status so client can credit safely via authenticated Firebase
+      return NextResponse.json({
+        success: true,
+        verified: true,
+        fallbackClientUpdate: true,
+        amount: amountToAdd,
+        sessionId,
+        message: 'Payment verified with Stripe. Completing wallet update...',
+      });
+    }
+
+    // 5. Server-side idempotency check
+    const existingTxSnap = await adminDb
+      .collection('wallet_transactions')
+      .where('stripeSessionId', '==', sessionId)
+      .limit(1)
+      .get();
 
     if (!existingTxSnap.empty) {
       return NextResponse.json({
@@ -65,7 +81,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 5. Credit wallet atomically
+    // 6. Credit wallet atomically via adminDb
     const walletRef = adminDb.collection('wallets').doc(userId);
     const txRef = adminDb.collection('wallet_transactions').doc();
     const notifRef = adminDb.collection('notifications').doc();

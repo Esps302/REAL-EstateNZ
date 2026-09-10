@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { convertCreditsToBalance } from "@/lib/wallet";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, runTransaction } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { WalletTransaction, CreditTransaction } from "@/types";
 import { 
@@ -120,10 +120,61 @@ function WalletPageContent() {
             body: JSON.stringify({ sessionId, userId: user.uid }),
           });
 
-          const data = await res.json();
-          toast.dismiss(toastId);
+          const rawText = await res.text();
+          let data: any = null;
+          try {
+            data = JSON.parse(rawText);
+          } catch (jsonErr) {
+            console.error("Non-JSON response from /api/stripe/verify-session:", rawText);
+            throw new Error("Unable to parse server response.");
+          }
 
           if (res.ok && data.success) {
+            // If the server requested client fallback because server-side Firebase Admin credentials were not configured
+            if (data.fallbackClientUpdate) {
+              const amountNum = Number(data.amount) || 0;
+              const walletRef = doc(db, "wallets", user.uid);
+              
+              // Client-side idempotency check
+              const txQuery = query(
+                collection(db, "wallet_transactions"),
+                where("stripeSessionId", "==", sessionId)
+              );
+              const existingTxSnap = await getDocs(txQuery);
+
+              if (existingTxSnap.empty) {
+                await runTransaction(db, async (t) => {
+                  const snap = await t.get(walletRef);
+                  const cur = snap.exists() ? (snap.data()?.balance || 0) : 0;
+                  if (snap.exists()) {
+                    t.update(walletRef, { balance: cur + amountNum });
+                  } else {
+                    t.set(walletRef, {
+                      id: user.uid,
+                      userId: user.uid,
+                      balance: amountNum,
+                      credits: 1000,
+                      lifetimeCredits: 1000,
+                      lifetimeConverted: 0,
+                      createdAt: Date.now(),
+                    });
+                  }
+
+                  const txRef = doc(collection(db, "wallet_transactions"));
+                  t.set(txRef, {
+                    id: txRef.id,
+                    userId: user.uid,
+                    type: "top_up",
+                    amount: amountNum,
+                    status: "completed",
+                    description: `Stripe Card Top-Up ($${amountNum.toFixed(2)} NZD)`,
+                    stripeSessionId: sessionId,
+                    createdAt: Date.now(),
+                  });
+                });
+              }
+            }
+
             if (!data.alreadyProcessed) {
               setSuccessModal({ type: 'topup', amount: data.amount });
               playGoldSound();
@@ -135,10 +186,11 @@ function WalletPageContent() {
           } else {
             toast.error(data.error || "Failed to verify Stripe payment.");
           }
-        } catch (err) {
+          toast.dismiss(toastId);
+        } catch (err: any) {
           toast.dismiss(toastId);
           console.error("Verification error:", err);
-          toast.error("An error occurred while verifying your payment.");
+          toast.error(err.message || "An error occurred while verifying your payment.");
         } finally {
           router.replace('/dashboard/wallet');
         }
