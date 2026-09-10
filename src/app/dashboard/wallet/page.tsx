@@ -65,15 +65,62 @@ function WalletPageContent() {
 
   const playGoldSound = () => {
     try {
-      if (goldCoinAudio) {
-        goldCoinAudio.currentTime = 0;
-        goldCoinAudio.volume = 0.6;
-        const playPromise = goldCoinAudio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(e => console.error("Audio blocked", e));
+      // 1. Try file playback
+      const audio = new Audio("/sounds/mixkit-gold-coin-prize-1999.wav");
+      audio.volume = 0.85;
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // If browser Autoplay policy blocks redirect sound, play on first click/touch
+          const onUserInteraction = () => {
+            const fallbackAudio = new Audio("/sounds/coin.mp3");
+            fallbackAudio.volume = 0.85;
+            fallbackAudio.play().catch(() => {});
+            window.removeEventListener("click", onUserInteraction);
+            window.removeEventListener("touchstart", onUserInteraction);
+          };
+          window.addEventListener("click", onUserInteraction, { once: true });
+          window.addEventListener("touchstart", onUserInteraction, { once: true });
+        });
+      }
+
+      // 2. Synthesize gold coin chime with Web Audio API
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const playSynth = () => {
+          const notes = [987.77, 1318.51, 1567.98, 1975.53];
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const start = ctx.currentTime + (i * 0.07);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.18, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.45);
+          });
+        };
+
+        if (ctx.state === "suspended") {
+          const resumeAudio = () => {
+            ctx.resume().then(playSynth);
+            window.removeEventListener("click", resumeAudio);
+            window.removeEventListener("touchstart", resumeAudio);
+          };
+          window.addEventListener("click", resumeAudio, { once: true });
+          window.addEventListener("touchstart", resumeAudio, { once: true });
+        } else {
+          playSynth();
         }
       }
-    } catch(e) {}
+    } catch(e) {
+      console.warn("Audio playback not supported or blocked", e);
+    }
   };
 
   // Reset any loading spinners when page is shown again (e.g. user pressed Back button in browser)
