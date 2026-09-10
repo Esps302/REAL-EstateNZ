@@ -31,6 +31,7 @@ export default function AgentsPage() {
         // If no agents found, we mock some for the UI demonstration
         if (fetchedAgents.length === 0) {
           fetchedAgents.push(
+            { uid: "pankaj-1", email: "Info@spsolutions.org.nz", role: "super_admin", name: "Pankaj Singh", avatarUrl: "/images/pankaj_singh.jpeg" },
             { uid: "1", email: "sarah@nzestates.co.nz", role: "agent", name: "Sarah Jenkins" },
             { uid: "2", email: "michael@nzestates.co.nz", role: "agent", name: "Michael Chang" },
             { uid: "3", email: "elena@nzestates.co.nz", role: "agent", name: "Elena Rodriguez" },
@@ -125,7 +126,7 @@ export default function AgentsPage() {
                       <div className="w-20 h-20 rounded-2xl bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center flex-shrink-0 shadow-sm relative">
                         {/* Fake avatar using UI Avatars */}
                         <Image 
-                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(agent.name || agent.email || "Agent")}&background=random&size=150`}
+                          src={agent.avatarUrl || (agent.name?.toLowerCase().includes("pankaj") ? "/images/pankaj_singh.jpeg" : `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.name || agent.email || "Agent")}&background=random&size=150`)}
                           alt={agent.name || "Agent"}
                           fill
                           className="object-cover"

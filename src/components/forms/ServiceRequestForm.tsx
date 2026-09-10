@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Calendar, Building, Scale, CheckCircle2 } from "lucide-react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { awardCredits } from "@/lib/wallet";
@@ -272,17 +273,17 @@ export function ServiceRequestForm({ property, onSuccess, initialService }: Serv
  </div>
 
  <div 
- onClick={() => setWantsSolicitor(!wantsSolicitor)}
- className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${wantsSolicitor ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300'}`}
- >
- <div className={`w-10 h-10 rounded-full flex items-center justify-center ${wantsSolicitor ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
- <Scale className="w-5 h-5" />
- </div>
- <div>
- <h3 className={`font-bold text-sm ${wantsSolicitor ? 'text-zinc-900' : 'text-zinc-700'}`}>Assign Solicitor</h3>
- <p className="text-xs text-zinc-500">Legal representation</p>
- </div>
- </div>
+            onClick={() => setWantsSolicitor(!wantsSolicitor)}
+            className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${wantsSolicitor ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300'}`}
+          >
+            <div className="w-10 h-10 rounded-full overflow-hidden relative border border-zinc-200 flex-shrink-0 shadow-sm">
+              <Image src="/images/pankaj_singh.jpeg" alt="Pankaj Singh" fill className="object-cover" />
+            </div>
+            <div>
+              <h3 className={`font-bold text-sm ${wantsSolicitor ? 'text-zinc-900' : 'text-zinc-700'}`}>Assign Solicitor</h3>
+              <p className="text-xs text-zinc-500">Legal representation (Pankaj Singh)</p>
+            </div>
+          </div>
  </div>
 
  {wantsViewing && (
@@ -334,12 +335,17 @@ export function ServiceRequestForm({ property, onSuccess, initialService }: Serv
  </div>
  )}
 
- {wantsSolicitor && (
- <div className="p-4 bg-blue-50 text-blue-800 text-sm rounded-xl border border-blue-100 flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
- <Scale className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600" />
- <p>Our platform will automatically assign a certified real estate solicitor to handle the legal documentation and conveyancing for this transaction securely.</p>
- </div>
- )}
+          {wantsSolicitor && (
+            <div className="p-4 bg-indigo-50/80 text-indigo-900 text-sm rounded-xl border border-indigo-100 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-indigo-200 flex-shrink-0 shadow-sm">
+                <Image src="/images/pankaj_singh.jpeg" alt="Pankaj Singh" fill className="object-cover" />
+              </div>
+              <div className="text-xs text-indigo-950">
+                <p className="font-bold text-sm text-indigo-900">Pankaj Singh & Legal Advisory Team</p>
+                <p className="text-indigo-700 mt-0.5">Certified conveyancer and solicitor documentation support for this transaction.</p>
+              </div>
+            </div>
+          )}
 
  <button type="submit" disabled={submitting || (!wantsViewing && !wantsMortgage && !wantsSolicitor)} className="w-full py-4 mt-2 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white rounded-xl font-bold transition-colors shadow-md text-base">
  {submitting ? "Submitting Request..." : "Submit Service Request"}

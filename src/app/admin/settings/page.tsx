@@ -13,10 +13,10 @@ export default function AdminSettingsPage() {
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [brokerName, setBrokerName] = useState("Mike Pankaj");
+  const [brokerName, setBrokerName] = useState("Pankaj Singh");
   const [brokerPhone, setBrokerPhone] = useState("+64 210468503");
   const [brokerEmail, setBrokerEmail] = useState("Info@spsolutions.org.nz");
-  const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/mike_pankaj.png");
+  const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/images/pankaj_singh.jpeg");
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
               value={brokerName}
               onChange={(e) => setBrokerName(e.target.value)}
               className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
-              placeholder="e.g., Mike Pankaj"
+              placeholder="e.g., Pankaj Singh"
             />
           </div>
 
