@@ -69,6 +69,9 @@ export interface Property {
  featuredUntil?: number;
  averageRating?: number;
  reviewCount?: number;
+ cvAmount?: number;
+ titleType?: 'Freehold' | 'Cross-lease' | 'Unit Title' | 'Leasehold';
+ schoolZones?: string[];
 }
 
 export interface AppNotification {

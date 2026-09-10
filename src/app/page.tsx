@@ -11,11 +11,11 @@ import AgentModal from "@/components/AgentModal";
 import { motion } from "framer-motion";
 import LeadGenForm from "@/components/LeadGenForm";
 import PropertyCard from "@/components/PropertyCard";
+import NZSearchAutocomplete from "@/components/NZSearchAutocomplete";
 import { Property } from "@/types";
 
 export default function Home() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
@@ -48,15 +48,6 @@ export default function Home() {
     };
     fetchFeatured();
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push(`/search`);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans">
@@ -94,25 +85,11 @@ export default function Home() {
                 Discover New Zealand's most exclusive properties with the trusted digital brokerage designed for extraordinary living.
               </p>
 
-              {/* Minimalist Search Pill */}
-              <form onSubmit={handleSearch} className="flex items-center w-full max-w-2xl bg-white rounded-full p-2 shadow-2xl">
-                <div className="flex-1 flex items-center px-4">
-                  <MapPin className="w-5 h-5 text-zinc-400 mr-3" />
-                  <input 
-                    type="text" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by city, suburb, or keyword..."
-                    className="w-full bg-transparent border-none focus:outline-none text-zinc-900 placeholder:text-zinc-400 font-medium h-12"
-                  />
-                </div>
-                <button 
-                  type="submit"
-                  className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white h-12 px-8 rounded-full font-bold flex items-center justify-center transition-colors"
-                >
-                  Search
-                </button>
-              </form>
+              {/* NZ Instant Suburb & City Autocomplete */}
+              <NZSearchAutocomplete 
+                className="max-w-2xl" 
+                placeholder="Search Auckland, Queenstown, Takapuna, Wellington..." 
+              />
 
               <div className="mt-8 flex gap-6 text-sm font-medium text-white/80">
                 <button onClick={() => router.push('/search?type=buy')} className="hover:text-white transition-colors">Browse Homes for Sale &rarr;</button>

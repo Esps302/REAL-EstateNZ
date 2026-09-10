@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import RewardPopup from "@/components/RewardPopup";
 import CreditNagPopup from "@/components/CreditNagPopup";
 import SplashScreen from "@/components/SplashScreen";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export const metadata: Metadata = {
     title: "Heaven Bricks | Premium Real Estate Brokerage",
     description: "Find your dream home in New Zealand with Heaven Bricks.",
   },
+  manifest: "/manifest.json",
 };
 
 export const viewport = {
@@ -57,10 +59,11 @@ export default function RootLayout({
  <div className="flex flex-col min-h-screen">
  <SplashScreen />
  <Navbar />
- <main className="flex-grow">
+ <main className="flex-grow pb-16 md:pb-0">
  {children}
  </main>
  <Footer />
+ <MobileBottomNav />
  </div>
  <Toaster richColors position="bottom-right" />
  <CreditNagPopup />

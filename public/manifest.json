@@ -1,0 +1,24 @@
+{
+  "name": "Heaven Bricks - Premium Real Estate Brokerage",
+  "short_name": "Heaven Bricks",
+  "description": "Discover New Zealand's most exclusive properties with the trusted digital brokerage.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

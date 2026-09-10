@@ -55,6 +55,9 @@ export default function SellPage() {
  yearBuilt: "",
  area: "",
  mapEmbed: "",
+ cvAmount: "",
+ titleType: "Freehold",
+ schoolZones: "",
  });
 
  const [kycConfirmed, setKycConfirmed] = useState(false);
@@ -256,6 +259,9 @@ export default function SellPage() {
  ...(floorPlanUrl !== undefined && { floorPlan: floorPlanUrl }),
  ...(lat !== undefined && { lat }),
  ...(lng !== undefined && { lng }),
+ ...(formData.cvAmount ? { cvAmount: Number(formData.cvAmount) } : {}),
+ ...(formData.titleType ? { titleType: formData.titleType as any } : {}),
+ ...(formData.schoolZones ? { schoolZones: formData.schoolZones.split(",").map(s => s.trim()).filter(Boolean) } : {}),
  status: "pending", 
  ownerId: user.uid,
  createdAt: Date.now()
@@ -476,10 +482,67 @@ export default function SellPage() {
  </div>
  </div>
 
+  {/* 3.5 NEW ZEALAND PROPERTY DETAILS */}
+  <div className="space-y-6 pt-4">
+    <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+      <h2 className="text-xl font-bold text-zinc-900">4. New Zealand Market & Legal Details</h2>
+      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+        NZ Standards
+      </span>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-semibold mb-2 text-zinc-700">
+          Land Title Type
+        </label>
+        <select
+          name="titleType"
+          value={formData.titleType}
+          onChange={handleChange}
+          className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900 font-medium"
+        >
+          <option value="Freehold">Freehold (Fee Simple)</option>
+          <option value="Cross-lease">Cross-lease</option>
+          <option value="Unit Title">Unit Title (Body Corporate)</option>
+          <option value="Leasehold">Leasehold</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold mb-2 text-zinc-700">
+          Rateable Valuation / Council CV ($ NZD) <span className="text-xs font-normal text-zinc-500">(Optional)</span>
+        </label>
+        <input
+          type="number"
+          name="cvAmount"
+          value={formData.cvAmount}
+          onChange={handleChange}
+          placeholder="e.g. 1150000"
+          className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-semibold mb-2 text-zinc-700">
+        In-Zone Schools <span className="text-xs font-normal text-zinc-500">(Comma separated, e.g. Auckland Grammar, Epsom Girls)</span>
+      </label>
+      <input
+        type="text"
+        name="schoolZones"
+        value={formData.schoolZones}
+        onChange={handleChange}
+        placeholder="e.g. Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate"
+        className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900"
+      />
+    </div>
+  </div>
+
   {/* AMENITIES */}
   <div className="space-y-6 pt-4">
   <h2 className="text-xl font-bold text-zinc-900 border-b border-zinc-100 pb-2 flex items-center justify-between">
-    <span>3. Features & Amenities</span>
+    <span>5. Features & Amenities</span>
     {formData.propertyType === "Land" && (
       <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
         Optional for Land

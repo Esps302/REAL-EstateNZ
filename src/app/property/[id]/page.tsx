@@ -5,7 +5,7 @@ import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase
 import { db } from "@/lib/firebase";
 import { Property } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { MapPin, Bed, Bath, Square, ChevronRight, Heart, ShieldCheck, Check, CheckCircle, HelpCircle, Landmark, Briefcase, Activity, Home, Calendar, Car, Info, UserCircle, Phone, Mail, X, ChevronLeft, Waves, Wind, Flame, TreePine, Dumbbell, Sun, Wifi, Monitor, PawPrint, Mountain, Utensils, ArrowUpDown, AppWindow, Star, MessageCircle, FileText, TrendingUp, Download, PieChart, Clock, Edit } from "lucide-react";
+import { MapPin, Bed, Bath, Square, ChevronRight, Heart, ShieldCheck, Check, CheckCircle, HelpCircle, Landmark, Briefcase, Activity, Home, Calendar, Car, Info, UserCircle, Phone, Mail, X, ChevronLeft, Waves, Wind, Flame, TreePine, Dumbbell, Sun, Wifi, Monitor, PawPrint, Mountain, Utensils, ArrowUpDown, AppWindow, Star, MessageCircle, FileText, TrendingUp, Download, PieChart, Clock, Edit, GraduationCap } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 import Image from "next/image";
@@ -490,14 +490,50 @@ const getAmenityIcon = (amenity: string) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Year Built</span>
+                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Land Title</span>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-zinc-400" />
-                  <span className="text-base font-bold text-zinc-900">{property.yearBuilt || "2020"}</span>
+                  <Landmark className="w-4 h-4 text-emerald-600" />
+                  <span className="text-base font-bold text-zinc-900">{property.titleType || "Freehold"}</span>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Council CV / RV</span>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  <span className="text-base font-bold text-zinc-900">
+                    {property.cvAmount ? formatCurrency(property.cvAmount, property.currency || "NZD") : "Available on request"}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* New Zealand In-Zone Schools */}
+          {property.schoolZones && property.schoolZones.length > 0 && (
+            <div className="bg-white border border-zinc-300 p-6 mb-6 rounded-sm shadow-sm">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-100">
+                <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-indigo-600" /> In-Zone Schools
+                </h2>
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
+                  NZ School Zone
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {property.schoolZones.map((school, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200/80">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600 font-bold text-xs">
+                      {i + 1}
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-zinc-900">{school}</div>
+                      <div className="text-xs text-zinc-500">Government School Zone</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Description Section */}
           <div className="bg-white border border-zinc-300 p-6 mb-6 rounded-sm shadow-sm">
