@@ -76,9 +76,21 @@ function WalletPageContent() {
     } catch(e) {}
   };
 
+  // Reset any loading spinners when page is shown again (e.g. user pressed Back button in browser)
   useEffect(() => {
-    if (!loading && !user) router.push('/login');
-  }, [user, loading, router]);
+    const handleResetLoading = () => {
+      setIsToppingUp(false);
+      setIsConverting(false);
+    };
+
+    window.addEventListener("pageshow", handleResetLoading);
+    window.addEventListener("focus", handleResetLoading);
+
+    return () => {
+      window.removeEventListener("pageshow", handleResetLoading);
+      window.removeEventListener("focus", handleResetLoading);
+    };
+  }, []);
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -89,6 +101,7 @@ function WalletPageContent() {
     const canceled = searchParams.get('canceled');
 
     if (canceled === 'true') {
+      setIsToppingUp(false);
       toast.info("Payment was canceled. Your card was not charged.");
       router.replace('/dashboard/wallet');
       return;
@@ -207,6 +220,10 @@ function WalletPageContent() {
       }
 
       // Redirect user directly to Stripe Checkout
+      setTimeout(() => {
+        setIsToppingUp(false);
+      }, 1500);
+
       window.location.href = data.url;
     } catch (err: any) {
       console.error("Top-up error:", err);
