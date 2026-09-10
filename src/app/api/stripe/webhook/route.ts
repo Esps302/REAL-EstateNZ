@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getAdminDb } from '@/lib/firebase-admin';
 import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,7 @@ export async function POST(req: Request) {
 
     let event: Stripe.Event;
 
-    // Verify webhook signature when secret is configured
+    // 1. Verify webhook signature when secret is configured
     if (webhookSecret && !webhookSecret.startsWith('whsec_dummy')) {
       if (!signature) {
         return NextResponse.json(
@@ -31,8 +30,7 @@ export async function POST(req: Request) {
         );
       }
     } else {
-      // In dev/test when webhook secret is not set, parse payload directly with warning
-      console.warn('⚠️ STRIPE_WEBHOOK_SECRET not set in production. Event signature verification bypassed.');
+      console.warn('⚠️ STRIPE_WEBHOOK_SECRET not set or dummy. Parsing payload directly.');
       try {
         event = JSON.parse(rawBody) as Stripe.Event;
       } catch (err: any) {
@@ -43,13 +41,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // Handle checkout session completion
+    // 2. Handle checkout session completion
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
 
       // Only fulfill paid sessions
       if (session.payment_status !== 'paid') {
-        console.log(`[Webhook] Session ${session.id} payment_status is '${session.payment_status}', ignoring.`);
+        console.log(`[Webhook] Session ${session.id} payment_status is '${session.payment_status}', skipping fulfillment.`);
         return NextResponse.json({ received: true });
       }
 
@@ -60,18 +58,24 @@ export async function POST(req: Request) {
         ? session.amount_total / 100
         : parseFloat(session.metadata?.amount || '0');
 
-      const adminDb = getAdminDb();
+      // Dynamically load firebase-admin to prevent top-level serverless bundling crash
+      let adminDb: any = null;
+      try {
+        const adminMod = await import('@/lib/firebase-admin');
+        adminDb = adminMod.getAdminDb();
+      } catch (err) {
+        console.warn('[Webhook] Could not load firebase-admin dynamically:', err);
+      }
 
       if (!adminDb) {
-        console.warn('[Webhook] Firebase Admin DB not initialized on server. Fulfillment will be handled by verify-session flow.');
-        return NextResponse.json({ received: true, note: 'Server DB uninitialized, handled by client flow' });
+        console.warn('[Webhook] Server DB uninitialized. Fulfillment will be handled by client verify-session flow.');
+        return NextResponse.json({ received: true, note: 'Fulfillment delegated to verify flow' });
       }
 
       // =======================================================================
       // 1. WALLET TOP-UP (Strict Idempotency Protection)
       // =======================================================================
       if (paymentType === 'wallet_topup') {
-        // Query to check if this stripe session has already been credited (e.g. by verify-session flow)
         const existingTxSnap = await adminDb
           .collection('wallet_transactions')
           .where('stripeSessionId', '==', sessionId)
@@ -89,7 +93,7 @@ export async function POST(req: Request) {
           const notifRef = adminDb.collection('notifications').doc();
           const now = Date.now();
 
-          await adminDb.runTransaction(async (t) => {
+          await adminDb.runTransaction(async (t: any) => {
             const walletDoc = await t.get(walletRef);
             let currentBalance = 0;
 
@@ -110,7 +114,6 @@ export async function POST(req: Request) {
               });
             }
 
-            // Record transaction with stripeSessionId for two-way idempotency
             t.set(txRef, {
               id: txRef.id,
               userId,
@@ -122,7 +125,6 @@ export async function POST(req: Request) {
               createdAt: now,
             });
 
-            // Send in-app notification
             t.set(notifRef, {
               id: notifRef.id,
               userId,
