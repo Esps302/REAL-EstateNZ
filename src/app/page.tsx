@@ -69,6 +69,7 @@ export default function Home() {
             alt="Luxury New Zealand Real Estate" 
             fill
             priority
+            sizes="100vw"
             className="object-cover object-center"
           />
         </div>
@@ -270,7 +271,14 @@ export default function Home() {
                 onClick={() => router.push(`/search?query=${city.name}`)}
                 className="relative rounded-2xl overflow-hidden group cursor-pointer aspect-square shadow-xl flex flex-col justify-end p-5 transition-all hover:ring-2 ring-[var(--color-accent)] ring-offset-2 ring-offset-zinc-900"
               >
-                <Image src={city.image} alt={city.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                <Image 
+                  src={city.image} 
+                  alt={city.name} 
+                  fill 
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
+                  loading="lazy"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 <div className="relative z-10">
                   <h3 className="text-xl font-extrabold tracking-tight mb-1">{city.name}</h3>

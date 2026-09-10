@@ -151,7 +151,7 @@ export default function RegisterPage() {
  };
 
  return (
- <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+ <div className="min-h-screen bg-zinc-50 flex flex-col justify-center pt-28 pb-16 sm:px-6 lg:px-8 font-sans relative z-10">
  <div className="sm:mx-auto sm:w-full sm:max-w-md">
  <h2 className="mt-6 text-center text-4xl font-extrabold text-zinc-900 tracking-tight">
  Create an account

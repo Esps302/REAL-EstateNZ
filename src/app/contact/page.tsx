@@ -1,6 +1,6 @@
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 pt-24 pb-20 font-sans">
+    <div className="min-h-screen bg-zinc-50 pt-28 md:pt-32 pb-20 font-sans relative z-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 mb-8 tracking-tight">Contact Us</h1>
         <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-200">

@@ -4,47 +4,85 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { X } from "lucide-react";
+
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+const SPLASH_STORAGE_KEY = "hb_splash_last_shown";
 
 export default function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Hide the splash screen after 3 seconds for a luxurious feel
-    const timer = setTimeout(() => {
+    // Only consider showing splash screen on the home page
+    if (pathname !== "/") {
       setIsVisible(false);
-    }, 3000);
+      return;
+    }
 
-    return () => clearTimeout(timer);
+    try {
+      const lastShown = localStorage.getItem(SPLASH_STORAGE_KEY);
+      const now = Date.now();
+
+      if (!lastShown || now - Number(lastShown) > TWO_HOURS_MS) {
+        // More than 2 hours have passed (or first visit), show splash screen
+        setIsVisible(true);
+        localStorage.setItem(SPLASH_STORAGE_KEY, now.toString());
+
+        // Automatically hide after 2.5 seconds
+        const timer = setTimeout(() => {
+          setIsVisible(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+      } else {
+        // Less than 2 hours, do not show
+        setIsVisible(false);
+      }
+    } catch {
+      // In case localStorage is blocked or disabled
+      setIsVisible(false);
+    }
   }, [pathname]);
 
-  // To prevent scrolling while splash screen is active
+  // Prevent scrolling while splash screen is active
   useEffect(() => {
     if (isVisible && pathname === "/") {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isVisible, pathname]);
 
-  if (pathname !== "/") return null;
+  if (pathname !== "/" || !isVisible) return null;
 
   return (
     <AnimatePresence>
       {isVisible && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#F9FAFB] text-zinc-900 overflow-hidden"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#F9FAFB] text-zinc-900 overflow-hidden"
+        >
+          {/* Skip button for immediate access */}
+          <button
+            onClick={() => setIsVisible(false)}
+            className="absolute top-6 right-6 z-20 px-3.5 py-1.5 rounded-full bg-zinc-200/70 hover:bg-zinc-300 text-zinc-700 text-xs font-bold transition-all flex items-center gap-1 backdrop-blur-sm shadow-sm"
           >
+            Skip <X className="w-3.5 h-3.5" />
+          </button>
+
           {/* Subtle background glow */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <motion.div 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 0.6, scale: 1.2 }}
-              transition={{ duration: 2.5, ease: "easeOut" }}
+              transition={{ duration: 2, ease: "easeOut" }}
               className="w-[50vw] h-[50vw] bg-blue-100/40 rounded-full blur-[120px]"
             />
           </div>
@@ -52,19 +90,19 @@ export default function SplashScreen() {
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center space-y-12 relative z-10"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center space-y-10 relative z-10"
           >
             {/* Elegant Logo Animation */}
             <motion.div
               initial={{ filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))", scale: 0.9 }}
               animate={{ filter: "drop-shadow(0px 15px 40px rgba(37, 99, 235, 0.15))", scale: 1 }}
-              transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
-              className="relative w-56 h-36 md:w-72 md:h-48"
+              transition={{ duration: 1.8, delay: 0.2, ease: "easeOut" }}
+              className="relative w-52 h-32 md:w-64 md:h-44"
             >
               <Image 
                 src="/images/logo-2.png" 
-                alt="Premium Logo" 
+                alt="Heaven Brick Logo" 
                 fill 
                 className="object-contain" 
                 priority 
@@ -76,8 +114,8 @@ export default function SplashScreen() {
               <motion.h1
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.7, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="text-xl md:text-3xl font-extrabold tracking-[0.15em] uppercase text-zinc-800 drop-shadow-sm"
+                transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="text-xl md:text-2xl font-extrabold tracking-[0.15em] uppercase text-zinc-800 drop-shadow-sm"
                 style={{ fontFamily: "var(--font-inter), sans-serif" }}
               >
                 ELEVATING REAL ESTATE
@@ -85,14 +123,14 @@ export default function SplashScreen() {
               <motion.div 
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: "100%", opacity: 1 }}
-                transition={{ delay: 1.1, duration: 1, ease: "easeInOut" }}
-                className="h-px bg-gradient-to-r from-transparent via-blue-900/20 to-transparent mt-4 mb-4"
+                transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
+                className="h-px bg-gradient-to-r from-transparent via-blue-900/20 to-transparent mt-3 mb-3"
               />
               <motion.p
                 initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.3, duration: 0.8, ease: "easeOut" }}
-                className="text-blue-600/80 font-bold tracking-[0.2em] text-xs md:text-sm uppercase"
+                transition={{ delay: 1, duration: 0.7, ease: "easeOut" }}
+                className="text-blue-600/80 font-bold tracking-[0.2em] text-xs uppercase"
               >
                 New Zealand's Most Trusted Network
               </motion.p>
@@ -100,16 +138,16 @@ export default function SplashScreen() {
             
             {/* Minimalist Progress Indicator */}
             <motion.div 
-              className="w-40 h-[3px] mt-12 bg-zinc-200/60 rounded-full overflow-hidden shadow-inner"
+              className="w-36 h-[3px] mt-8 bg-zinc-200/60 rounded-full overflow-hidden shadow-inner"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 0.6 }}
+              transition={{ delay: 1.1, duration: 0.5 }}
             >
               <motion.div 
                 className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 rounded-full"
                 initial={{ width: "0%", x: "-100%" }}
                 animate={{ width: "100%", x: "0%" }}
-                transition={{ duration: 1.8, ease: "easeInOut", delay: 1.6 }}
+                transition={{ duration: 1.4, ease: "easeInOut", delay: 1.1 }}
               />
             </motion.div>
           </motion.div>

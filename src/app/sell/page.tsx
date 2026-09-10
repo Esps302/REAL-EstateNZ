@@ -307,15 +307,15 @@ export default function SellPage() {
  return <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-bold text-zinc-900">Loading...</div>;
  }
 
- return (
- <div className="bg-zinc-50 font-sans min-h-screen py-12">
- <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
- <div className="text-center mb-10">
- <h1 className="text-4xl font-extrabold mb-4 text-zinc-900 tracking-tight">Post Your Property</h1>
- <p className="text-zinc-500 font-medium">Reach thousands of buyers across New Zealand. It only takes 5 minutes.</p>
- </div>
- 
- <div className="bg-white rounded-3xl p-8 shadow-xl border border-zinc-200">
+  return (
+  <div className="bg-zinc-50 font-sans min-h-screen pt-28 md:pt-32 pb-20 relative z-10">
+  <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div className="text-center mb-10">
+  <h1 className="text-4xl font-extrabold mb-4 text-zinc-900 tracking-tight">Post Your Property</h1>
+  <p className="text-zinc-500 font-medium">Reach thousands of buyers across New Zealand. It only takes 5 minutes.</p>
+  </div>
+  
+  <div className="bg-white rounded-3xl p-8 shadow-xl border border-zinc-200 relative z-10">
  
  {error && (
  <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm font-medium">
