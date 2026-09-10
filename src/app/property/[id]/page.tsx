@@ -458,18 +458,18 @@ const getAmenityIcon = (amenity: string) => {
                 <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Bedrooms</span>
                 <div className="flex items-center gap-2">
                   <Bed className="w-4 h-4 text-zinc-400" />
-                  <span className="text-lg font-extrabold text-zinc-900">{property.bedrooms}</span>
+                  <span className="text-lg font-extrabold text-zinc-900">{property.bedrooms ? property.bedrooms : (property.propertyType === "Land" ? "N/A" : property.bedrooms)}</span>
                 </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Bathrooms</span>
                 <div className="flex items-center gap-2">
                   <Bath className="w-4 h-4 text-zinc-400" />
-                  <span className="text-lg font-extrabold text-zinc-900">{property.bathrooms}</span>
+                  <span className="text-lg font-extrabold text-zinc-900">{property.bathrooms ? property.bathrooms : (property.propertyType === "Land" ? "N/A" : property.bathrooms)}</span>
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Floor area</span>
+                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">{property.propertyType === "Land" ? "Land area" : "Floor area"}</span>
                 <div className="flex items-center gap-2">
                   <Square className="w-4 h-4 text-zinc-400" />
                   <span className="text-lg font-extrabold text-zinc-900">{property.area} m²</span>

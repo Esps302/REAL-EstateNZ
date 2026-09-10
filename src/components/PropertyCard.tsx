@@ -173,11 +173,21 @@ export default function PropertyCard({ property }: { property: Property }) {
  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 flex-shrink-0 text-zinc-400" />
  <span className="line-clamp-2 leading-tight">{property.address || `${property.suburb}, ${property.city}`}</span>
  </div>
- <div className="flex flex-wrap items-center justify-between border-t border-zinc-100 pt-2 text-zinc-600 text-[10px] sm:text-xs font-bold gap-1 sm:gap-2">
- <div className="flex items-center gap-1 sm:gap-1.5"><Bed className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.bedrooms}</div>
- <div className="flex items-center gap-1 sm:gap-1.5"><Bath className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.bathrooms}</div>
- <div className="flex items-center gap-1 sm:gap-1.5"><Square className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.area} sqft</div>
- </div>
+  <div className="flex flex-wrap items-center justify-between border-t border-zinc-100 pt-2 text-zinc-600 text-[10px] sm:text-xs font-bold gap-1 sm:gap-2">
+  {property.propertyType === "Land" ? (
+    <>
+      <div className="flex items-center gap-1 sm:gap-1.5"><MapPin className="w-3 h-3 text-zinc-400" /> Land / Section</div>
+      {Boolean(property.bedrooms) && <div className="flex items-center gap-1 sm:gap-1.5"><Bed className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.bedrooms}</div>}
+      <div className="flex items-center gap-1 sm:gap-1.5"><Square className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.area} sqm</div>
+    </>
+  ) : (
+    <>
+      <div className="flex items-center gap-1 sm:gap-1.5"><Bed className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.bedrooms}</div>
+      <div className="flex items-center gap-1 sm:gap-1.5"><Bath className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.bathrooms}</div>
+      <div className="flex items-center gap-1 sm:gap-1.5"><Square className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> {property.area} sqm</div>
+    </>
+  )}
+  </div>
  </div>
  </Link>
  

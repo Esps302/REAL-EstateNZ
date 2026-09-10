@@ -242,12 +242,13 @@ function SearchPageContent() {
  onChange={(e) => setPropertyType(e.target.value)}
  className="border border-zinc-300 rounded-xl px-4 py-3 md:py-2 bg-white text-sm text-zinc-900 font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-sm cursor-pointer w-full md:w-auto"
  >
- <option value="any">Any Type</option>
- <option value="House">House</option>
- <option value="Apartment">Apartment</option>
- <option value="Townhouse">Townhouse</option>
- <option value="Villa">Villa</option>
- <option value="Commercial">Commercial</option>
+  <option value="any">Any Type</option>
+  <option value="House">House</option>
+  <option value="Townhouse">Townhouse</option>
+  <option value="Apartment">Apartment</option>
+  <option value="Villa">Villa</option>
+  <option value="Land">Land</option>
+  <option value="Commercial">Commercial</option>
  </select>
  </div>
  <button 
@@ -381,11 +382,13 @@ function SearchPageContent() {
  onChange={(e) => setPropertyType(e.target.value)}
  className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer"
  >
- <option value="any">Property Type</option>
- <option value="House">House</option>
- <option value="Apartment">Apartment</option>
- <option value="Townhouse">Townhouse</option>
- <option value="Commercial">Commercial</option>
+  <option value="any">Property Type</option>
+  <option value="House">House</option>
+  <option value="Townhouse">Townhouse</option>
+  <option value="Apartment">Apartment</option>
+  <option value="Villa">Villa</option>
+  <option value="Land">Land</option>
+  <option value="Commercial">Commercial</option>
  </select>
  </div>
 

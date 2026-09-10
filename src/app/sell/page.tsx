@@ -344,9 +344,10 @@ export default function SellPage() {
  <label className="block text-sm font-semibold mb-2 text-zinc-700">Property Type</label>
  <select required name="propertyType" value={formData.propertyType} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900">
  <option>House</option>
- <option>Apartment</option>
  <option>Townhouse</option>
+ <option>Apartment</option>
  <option>Villa</option>
+ <option>Land</option>
  <option>Commercial</option>
  </select>
  </div>
@@ -369,10 +370,10 @@ export default function SellPage() {
  </div>
 
  <div className="grid grid-cols-1 gap-6">
- <div>
- <label className="block text-sm font-semibold mb-2 text-zinc-700">Area (sqm)</label>
- <input required type="number" name="area" value={formData.area} onChange={handleChange} placeholder="120" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
- </div>
+  <div>
+  <label className="block text-sm font-semibold mb-2 text-zinc-700">{formData.propertyType === "Land" ? "Land Area (sqm)" : "Area (sqm)"}</label>
+  <input required type="number" name="area" value={formData.area} onChange={handleChange} placeholder={formData.propertyType === "Land" ? "e.g. 600" : "120"} className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+  </div>
  </div>
  </div>
 
@@ -449,14 +450,18 @@ export default function SellPage() {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div>
- <label className="block text-sm font-semibold mb-2 text-zinc-700">Bedrooms</label>
- <input required type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} placeholder="3" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
- </div>
- <div>
- <label className="block text-sm font-semibold mb-2 text-zinc-700">Bathrooms</label>
- <input required type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} placeholder="2" className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
- </div>
+  <div>
+  <label className="block text-sm font-semibold mb-2 text-zinc-700">
+    Bedrooms {formData.propertyType === "Land" && <span className="text-xs font-normal text-zinc-500">(Optional for Land)</span>}
+  </label>
+  <input required={formData.propertyType !== "Land"} type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} placeholder={formData.propertyType === "Land" ? "0 (Optional)" : "3"} className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+  </div>
+  <div>
+  <label className="block text-sm font-semibold mb-2 text-zinc-700">
+    Bathrooms {formData.propertyType === "Land" && <span className="text-xs font-normal text-zinc-500">(Optional for Land)</span>}
+  </label>
+  <input required={formData.propertyType !== "Land"} type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} placeholder={formData.propertyType === "Land" ? "0 (Optional)" : "2"} className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 text-zinc-900" />
+  </div>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -471,11 +476,20 @@ export default function SellPage() {
  </div>
  </div>
 
- {/* AMENITIES */}
- <div className="space-y-6 pt-4">
- <h2 className="text-xl font-bold text-zinc-900 border-b border-zinc-100 pb-2">3. Features & Amenities</h2>
- <div>
- <label className="block text-sm font-semibold mb-3 text-zinc-700">Select all that apply</label>
+  {/* AMENITIES */}
+  <div className="space-y-6 pt-4">
+  <h2 className="text-xl font-bold text-zinc-900 border-b border-zinc-100 pb-2 flex items-center justify-between">
+    <span>3. Features & Amenities</span>
+    {formData.propertyType === "Land" && (
+      <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+        Optional for Land
+      </span>
+    )}
+  </h2>
+  <div>
+  <label className="block text-sm font-semibold mb-3 text-zinc-700">
+    {formData.propertyType === "Land" ? "Select any applicable land features or leave blank:" : "Select all that apply"}
+  </label>
  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
  {[...AVAILABLE_AMENITIES, ...customAmenitiesList].map((amenity) => (
  <label key={amenity} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium ${selectedAmenities.includes(amenity) ? 'border-zinc-900 bg-zinc-900 text-white shadow-md' : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'}`}>
