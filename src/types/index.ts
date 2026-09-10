@@ -195,3 +195,28 @@ export interface Review {
   comment: string;
   createdAt: number;
 }
+
+export interface PropertyDeposit {
+  id: string;
+  sessionId: string;
+  userId: string | null;
+  propertyId: string | null;
+  propertyTitle: string;
+  amount: number;
+  currency: string;
+  status: "confirmed" | "refunded" | "cancelled";
+  createdAt: number;
+}
+
+export interface ServicePayment {
+  id: string;
+  sessionId: string;
+  userId: string | null;
+  type: "brokerage_fee" | "agent_service_fee";
+  serviceName: string;
+  propertyId?: string | null;
+  amount: number;
+  currency: string;
+  status: "completed" | "refunded";
+  createdAt: number;
+}

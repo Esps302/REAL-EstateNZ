@@ -55,6 +55,16 @@ service cloud.firestore {
       allow write: if isAuthenticated() && (isAdmin() || request.resource.data.userId == request.auth.uid);
     }
     
+    match /property_deposits/{depositId} {
+      allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+    
+    match /service_payments/{paymentId} {
+      allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+    
     match /notifications/{notificationId} {
       // Users can read their own notifications, admins can read all
       allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
