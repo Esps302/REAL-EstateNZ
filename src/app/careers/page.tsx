@@ -8,7 +8,7 @@ export default function CareersPage() {
             Join the team redefining New Zealand's real estate market. We are always looking for ambitious engineers, designers, and licensed brokers to join our fast-growing startup.
           </p>
           <p className="text-lg text-zinc-700 leading-relaxed">
-            Please check back soon for open roles, or send your CV to <a href="mailto:brokerage@nzestates.com" className="text-blue-600 hover:underline">brokerage@nzestates.com</a>.
+            Please check back soon for open roles, or send your CV to <a href="mailto:Info@spsolutions.org.nz" className="text-blue-600 hover:underline">Info@spsolutions.org.nz</a>.
           </p>
         </div>
       </div>

@@ -63,8 +63,8 @@ const getAmenityIcon = (amenity: string) => {
   const [isViewingModalOpen, setIsViewingModalOpen] = useState(false);
 
   const [brokerName, setBrokerName] = useState("Mike Pankaj");
-  const [brokerPhone, setBrokerPhone] = useState("021 555 0192");
-  const [brokerEmail, setBrokerEmail] = useState("j.harrison@nzestates.co.nz");
+  const [brokerPhone, setBrokerPhone] = useState("+64 210468503");
+  const [brokerEmail, setBrokerEmail] = useState("Info@spsolutions.org.nz");
   const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/mike_pankaj.png");
 
   useEffect(() => {
@@ -270,7 +270,7 @@ const getAmenityIcon = (amenity: string) => {
               <div className="absolute inset-0 bg-blue-50/0 group-hover/contact:bg-blue-50/30 transition-colors"></div>
               <Mail className="w-5 h-5 text-zinc-400 group-hover/contact:text-blue-600 mb-2 transition-colors relative z-10" />
               <span className="text-[10px] font-black text-zinc-800 uppercase tracking-widest relative z-10">Email</span>
-              <span className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">{brokerEmail.length > 15 ? brokerEmail.substring(0, 12) + '...' : brokerEmail}</span>
+              <span title={brokerEmail} className="text-[11px] font-medium text-zinc-500 truncate w-full text-center mt-0.5 relative z-10">{brokerEmail}</span>
             </a>
           </div>
           

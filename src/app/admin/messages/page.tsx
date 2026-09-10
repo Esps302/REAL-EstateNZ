@@ -123,7 +123,7 @@ export default function AdminMessagesPage() {
           <ChatBox 
             conversationId={selectedConvoId}
             currentUserId={ADMIN_ID}
-            currentUserName="James Harrison (Agent)"
+            currentUserName="Mike Pankaj (Agent)"
             otherPartyName={otherPartyName}
             propertyTitle={selectedConvo?.propertyTitle}
           />

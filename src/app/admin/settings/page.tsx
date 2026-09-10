@@ -14,8 +14,8 @@ export default function AdminSettingsPage() {
   const router = useRouter();
 
   const [brokerName, setBrokerName] = useState("Mike Pankaj");
-  const [brokerPhone, setBrokerPhone] = useState("021 555 0192");
-  const [brokerEmail, setBrokerEmail] = useState("j.harrison@nzestates.co.nz");
+  const [brokerPhone, setBrokerPhone] = useState("+64 210468503");
+  const [brokerEmail, setBrokerEmail] = useState("Info@spsolutions.org.nz");
   const [brokerAvatarUrl, setBrokerAvatarUrl] = useState("/mike_pankaj.png");
   
   const [isUploading, setIsUploading] = useState(false);
@@ -173,7 +173,7 @@ export default function AdminSettingsPage() {
               value={brokerPhone}
               onChange={(e) => setBrokerPhone(e.target.value)}
               className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
-              placeholder="e.g., 021 555 0192"
+              placeholder="e.g., +64 210468503"
             />
           </div>
 
