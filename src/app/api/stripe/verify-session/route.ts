@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getAdminDb } from '@/lib/firebase-admin';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Retrieve session from Stripe
+    // 1. Retrieve session directly from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (!session) {
@@ -49,95 +50,12 @@ export async function POST(req: Request) {
       ? session.amount_total / 100
       : 0;
 
-    // 4. Check if Admin DB is available for server-side crediting
-    const adminDb = getAdminDb();
-
-    if (!adminDb) {
-      // If server environment doesn't have Firebase Admin credentials,
-      // return verified status so client can credit safely via authenticated Firebase
-      return NextResponse.json({
-        success: true,
-        verified: true,
-        fallbackClientUpdate: true,
-        amount: amountToAdd,
-        sessionId,
-        message: 'Payment verified with Stripe. Completing wallet update...',
-      });
-    }
-
-    // 5. Server-side idempotency check
-    const existingTxSnap = await adminDb
-      .collection('wallet_transactions')
-      .where('stripeSessionId', '==', sessionId)
-      .limit(1)
-      .get();
-
-    if (!existingTxSnap.empty) {
-      return NextResponse.json({
-        success: true,
-        alreadyProcessed: true,
-        amount: amountToAdd,
-        message: 'This transaction was already credited to your wallet.',
-      });
-    }
-
-    // 6. Credit wallet atomically via adminDb
-    const walletRef = adminDb.collection('wallets').doc(userId);
-    const txRef = adminDb.collection('wallet_transactions').doc();
-    const notifRef = adminDb.collection('notifications').doc();
-    const now = Date.now();
-
-    await adminDb.runTransaction(async (t) => {
-      const walletDoc = await t.get(walletRef);
-      let currentBalance = 0;
-
-      if (walletDoc.exists) {
-        currentBalance = walletDoc.data()?.balance || 0;
-        t.update(walletRef, {
-          balance: currentBalance + amountToAdd,
-        });
-      } else {
-        t.set(walletRef, {
-          id: userId,
-          userId,
-          balance: amountToAdd,
-          credits: 1000,
-          lifetimeCredits: 1000,
-          lifetimeConverted: 0,
-          createdAt: now,
-        });
-      }
-
-      // Record transaction
-      t.set(txRef, {
-        id: txRef.id,
-        userId,
-        type: 'top_up',
-        amount: amountToAdd,
-        status: 'completed',
-        description: `Stripe Card Top-Up ($${amountToAdd.toFixed(2)} NZD)`,
-        stripeSessionId: sessionId,
-        createdAt: now,
-      });
-
-      // Send in-app notification
-      t.set(notifRef, {
-        id: notifRef.id,
-        userId,
-        title: 'Wallet Funded Successfully',
-        message: `Your wallet has been credited with $${amountToAdd.toFixed(2)} NZD via Stripe.`,
-        type: 'success',
-        isRead: false,
-        isPoppedUp: false,
-        link: '/dashboard/wallet',
-        createdAt: now,
-      });
-    });
-
     return NextResponse.json({
       success: true,
+      verified: true,
       amount: amountToAdd,
-      message: `Successfully topped up $${amountToAdd.toFixed(2)} NZD!`,
+      sessionId: session.id,
+      message: `Payment verified ($${amountToAdd.toFixed(2)} NZD).`,
     });
   } catch (error: any) {
     console.error('Error verifying Stripe session:', error);

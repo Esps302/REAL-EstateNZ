@@ -129,56 +129,54 @@ function WalletPageContent() {
             throw new Error("Unable to parse server response.");
           }
 
-          if (res.ok && data.success) {
-            // If the server requested client fallback because server-side Firebase Admin credentials were not configured
-            if (data.fallbackClientUpdate) {
-              const amountNum = Number(data.amount) || 0;
-              const walletRef = doc(db, "wallets", user.uid);
-              
-              // Client-side idempotency check
-              const txQuery = query(
-                collection(db, "wallet_transactions"),
-                where("stripeSessionId", "==", sessionId)
-              );
-              const existingTxSnap = await getDocs(txQuery);
+          if (res.ok && data.success && data.verified) {
+            const amountNum = Number(data.amount) || 0;
+            const walletRef = doc(db, "wallets", user.uid);
+            
+            // Client-side idempotency check
+            const txQuery = query(
+              collection(db, "wallet_transactions"),
+              where("stripeSessionId", "==", sessionId)
+            );
+            const existingTxSnap = await getDocs(txQuery);
+            const isAlreadyCredited = !existingTxSnap.empty;
 
-              if (existingTxSnap.empty) {
-                await runTransaction(db, async (t) => {
-                  const snap = await t.get(walletRef);
-                  const cur = snap.exists() ? (snap.data()?.balance || 0) : 0;
-                  if (snap.exists()) {
-                    t.update(walletRef, { balance: cur + amountNum });
-                  } else {
-                    t.set(walletRef, {
-                      id: user.uid,
-                      userId: user.uid,
-                      balance: amountNum,
-                      credits: 1000,
-                      lifetimeCredits: 1000,
-                      lifetimeConverted: 0,
-                      createdAt: Date.now(),
-                    });
-                  }
-
-                  const txRef = doc(collection(db, "wallet_transactions"));
-                  t.set(txRef, {
-                    id: txRef.id,
+            if (!isAlreadyCredited) {
+              await runTransaction(db, async (t) => {
+                const snap = await t.get(walletRef);
+                const cur = snap.exists() ? (snap.data()?.balance || 0) : 0;
+                if (snap.exists()) {
+                  t.update(walletRef, { balance: cur + amountNum });
+                } else {
+                  t.set(walletRef, {
+                    id: user.uid,
                     userId: user.uid,
-                    type: "top_up",
-                    amount: amountNum,
-                    status: "completed",
-                    description: `Stripe Card Top-Up ($${amountNum.toFixed(2)} NZD)`,
-                    stripeSessionId: sessionId,
+                    balance: amountNum,
+                    credits: 1000,
+                    lifetimeCredits: 1000,
+                    lifetimeConverted: 0,
                     createdAt: Date.now(),
                   });
+                }
+
+                const txRef = doc(collection(db, "wallet_transactions"));
+                t.set(txRef, {
+                  id: txRef.id,
+                  userId: user.uid,
+                  type: "top_up",
+                  amount: amountNum,
+                  status: "completed",
+                  description: `Stripe Card Top-Up ($${amountNum.toFixed(2)} NZD)`,
+                  stripeSessionId: sessionId,
+                  createdAt: Date.now(),
                 });
-              }
+              });
             }
 
-            if (!data.alreadyProcessed) {
-              setSuccessModal({ type: 'topup', amount: data.amount });
+            if (!isAlreadyCredited) {
+              setSuccessModal({ type: 'topup', amount: amountNum });
               playGoldSound();
-              toast.success(`Success! $${Number(data.amount).toFixed(2)} NZD added to your wallet.`);
+              toast.success(`Success! $${amountNum.toFixed(2)} NZD added to your wallet.`);
             } else {
               toast.info("Payment session already credited.");
             }
