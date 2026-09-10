@@ -171,6 +171,7 @@ export interface WalletTransaction {
   status: "completed" | "failed" | "pending";
   description: string;
   referenceId?: string;
+  stripeSessionId?: string;
   createdAt: number;
 }
 

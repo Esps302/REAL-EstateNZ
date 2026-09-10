@@ -1,13 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { convertCreditsToBalance, simulateTopUpWallet } from "@/lib/wallet";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { useRouter, useSearchParams } from "next/navigation";
+import { convertCreditsToBalance } from "@/lib/wallet";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { WalletTransaction, CreditTransaction } from "@/types";
-import { Wallet, ShieldCheck, ArrowRightLeft, Plus, History, Loader2, Star, UserPlus, Handshake, Calendar, X, CheckCircle2, Coins, CreditCard } from "lucide-react";
+import { 
+  ArrowRightLeft, 
+  Plus, 
+  History, 
+  Loader2, 
+  Star, 
+  UserPlus, 
+  Handshake, 
+  Calendar, 
+  X, 
+  CheckCircle2, 
+  Coins, 
+  CreditCard,
+  Lock,
+  Sparkles
+} from "lucide-react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -17,8 +32,22 @@ if (goldCoinAudio) {
 }
 
 export default function WalletPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-bold text-zinc-900">
+        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading Wallet...
+      </div>
+    }>
+      <WalletPageContent />
+    </Suspense>
+  );
+}
+
+function WalletPageContent() {
   const { user, wallet, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [activeTab, setActiveTab] = useState<"convert" | "topup" | "history">("convert");
   
   const [isConverting, setIsConverting] = useState(false);
@@ -31,6 +60,8 @@ export default function WalletPage() {
   const [creditTxs, setCreditTxs] = useState<CreditTransaction[]>([]);
   const [fetchingTxs, setFetchingTxs] = useState(false);
   const [successModal, setSuccessModal] = useState<{type: 'convert'|'topup', amount: number} | null>(null);
+
+  const verifyingSessionRef = useRef<string | null>(null);
 
   const playGoldSound = () => {
     try {
@@ -48,6 +79,61 @@ export default function WalletPage() {
   useEffect(() => {
     if (!loading && !user) router.push('/login');
   }, [user, loading, router]);
+
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    if (!user) return;
+
+    const sessionId = searchParams.get('session_id');
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+
+    if (canceled === 'true') {
+      toast.info("Payment was canceled. Your card was not charged.");
+      router.replace('/dashboard/wallet');
+      return;
+    }
+
+    if (sessionId && success === 'true') {
+      if (verifyingSessionRef.current === sessionId) return;
+      verifyingSessionRef.current = sessionId;
+
+      const verifyStripePayment = async () => {
+        const toastId = toast.loading("Verifying your Stripe payment...");
+        try {
+          const res = await fetch('/api/stripe/verify-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, userId: user.uid }),
+          });
+
+          const data = await res.json();
+          toast.dismiss(toastId);
+
+          if (res.ok && data.success) {
+            if (!data.alreadyProcessed) {
+              setSuccessModal({ type: 'topup', amount: data.amount });
+              playGoldSound();
+              toast.success(`Success! $${Number(data.amount).toFixed(2)} NZD added to your wallet.`);
+            } else {
+              toast.info("Payment session already credited.");
+            }
+            fetchHistory();
+          } else {
+            toast.error(data.error || "Failed to verify Stripe payment.");
+          }
+        } catch (err) {
+          toast.dismiss(toastId);
+          console.error("Verification error:", err);
+          toast.error("An error occurred while verifying your payment.");
+        } finally {
+          router.replace('/dashboard/wallet');
+        }
+      };
+
+      verifyStripePayment();
+    }
+  }, [user, searchParams, router]);
 
   useEffect(() => {
     if (activeTab === "history" && user) {
@@ -99,22 +185,42 @@ export default function WalletPage() {
 
   const handleTopUp = async () => {
     if (!user) return;
-    if (topUpAmount <= 0) return;
+    if (topUpAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
     setIsToppingUp(true);
-    const success = await simulateTopUpWallet(user.uid, topUpAmount);
-    setIsToppingUp(false);
-    if (success) {
-      setSuccessModal({ type: 'topup', amount: topUpAmount });
-      playGoldSound();
-      setTopUpAmount(10);
-      setTimeout(() => setSuccessModal(null), 5000);
-    } else {
-      toast.error("Top up failed");
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          amount: topUpAmount,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Failed to initialize Stripe checkout");
+      }
+
+      // Redirect user directly to Stripe Checkout
+      window.location.href = data.url;
+    } catch (err: any) {
+      console.error("Top-up error:", err);
+      toast.error(err.message || "Failed to start payment process");
+      setIsToppingUp(false);
     }
   };
 
   if (loading || !user || !wallet) {
-    return <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-bold text-zinc-900"><Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading Wallet...</div>;
+    return (
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-bold text-zinc-900">
+        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading Wallet...
+      </div>
+    );
   }
 
   return (
@@ -141,25 +247,25 @@ export default function WalletPage() {
                 <X className="w-5 h-5" />
               </button>
               
-              <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-6 shadow-inner border-4 border-amber-50">
-                <CheckCircle2 className="w-10 h-10 text-amber-500" />
+              <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner border-4 border-green-50">
+                <CheckCircle2 className="w-10 h-10 text-green-600" />
               </div>
               
-              <h2 className="text-2xl font-extrabold text-zinc-900 mb-2">Success!</h2>
+              <h2 className="text-2xl font-extrabold text-zinc-900 mb-2">Payment Confirmed!</h2>
               
               {successModal.type === 'convert' ? (
                 <p className="text-zinc-600 font-medium mb-6">
-                  You successfully converted <span className="font-bold text-amber-600">{successModal.amount} Credits</span> into <span className="font-bold text-green-600">${(successModal.amount / 1000).toFixed(2)}</span> balance.
+                  You successfully converted <span className="font-bold text-amber-600">{successModal.amount} Credits</span> into <span className="font-bold text-green-600">${(successModal.amount / 1000).toFixed(2)} NZD</span> balance.
                 </p>
               ) : (
                 <p className="text-zinc-600 font-medium mb-6">
-                  You successfully topped up your wallet with <span className="font-bold text-green-600">${successModal.amount.toFixed(2)}</span>.
+                  You successfully topped up your wallet with <span className="font-bold text-green-600">${Number(successModal.amount).toFixed(2)} NZD</span> via Stripe!
                 </p>
               )}
               
               <button 
                 onClick={() => setSuccessModal(null)}
-                className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-all active:scale-95"
+                className="w-full py-3.5 bg-zinc-900 hover:bg-black text-white font-bold rounded-xl shadow-lg transition-all active:scale-95"
               >
                 Awesome!
               </button>
@@ -169,60 +275,109 @@ export default function WalletPage() {
       </AnimatePresence>
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-extrabold text-zinc-900 mb-8">My Wallet</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold text-zinc-900">My Wallet</h1>
+            <p className="text-sm text-zinc-500 mt-1">Manage your funds, earn reward credits, and purchase property promotions.</p>
+          </div>
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            Stripe Secure Payments
+          </div>
+        </div>
         
         {/* Wallet Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-zinc-900 text-white p-6 rounded-2xl shadow-xl flex flex-col justify-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-6 rounded-3xl shadow-xl flex flex-col justify-center relative overflow-hidden border border-zinc-700/50">
             <div className="absolute top-0 right-0 p-4 opacity-10">
-              <CreditCard className="w-32 h-32" />
+              <CreditCard className="w-36 h-36" />
             </div>
-            <p className="text-zinc-400 font-medium mb-1 relative z-10">Wallet Balance</p>
+            <div className="flex items-center justify-between mb-1 relative z-10">
+              <p className="text-zinc-400 font-medium text-sm">Wallet Balance</p>
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-zinc-700/80 px-2.5 py-0.5 rounded-full text-zinc-200">NZD</span>
+            </div>
             <h2 className="text-5xl font-extrabold relative z-10">${wallet.balance.toFixed(2)}</h2>
+            <div className="mt-4 pt-4 border-t border-zinc-700/60 flex items-center justify-between text-xs text-zinc-400 relative z-10">
+              <span>Ready for property listings</span>
+              <button 
+                onClick={() => setActiveTab("topup")}
+                className="text-white hover:text-amber-400 font-bold underline transition-colors"
+              >
+                + Add Funds
+              </button>
+            </div>
           </div>
           
-          <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm flex flex-col justify-center relative overflow-hidden">
+          <div className="bg-white border border-zinc-200 p-6 rounded-3xl shadow-sm flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 text-amber-500">
-              <Coins className="w-32 h-32" />
+              <Coins className="w-36 h-36" />
             </div>
-            <p className="text-zinc-500 font-medium mb-1 relative z-10">Available Credits</p>
-            <h2 className="text-5xl font-extrabold text-amber-500 relative z-10">{wallet.credits} <span className="text-xl text-zinc-400 font-medium">Credits</span></h2>
+            <div className="flex items-center justify-between mb-1 relative z-10">
+              <p className="text-zinc-500 font-medium text-sm">Available Reward Credits</p>
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-500" /> Reward
+              </span>
+            </div>
+            <h2 className="text-5xl font-extrabold text-amber-500 relative z-10">
+              {wallet.credits} <span className="text-xl text-zinc-400 font-medium">Credits</span>
+            </h2>
+            <div className="mt-4 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500 relative z-10">
+              <span>Worth ${(wallet.credits / 1000).toFixed(2)} in wallet balance</span>
+              <button 
+                onClick={() => setActiveTab("convert")}
+                className="text-amber-600 hover:text-amber-700 font-bold underline transition-colors"
+              >
+                Convert Now
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
+        <div className="flex bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-6 p-1 gap-1">
           <button 
             onClick={() => setActiveTab("convert")}
-            className={`flex-1 py-4 font-bold text-sm transition-colors flex items-center justify-center gap-2 ${activeTab === "convert" ? "bg-amber-50 text-amber-700 border-b-2 border-amber-500" : "text-zinc-600 hover:bg-zinc-50"}`}
+            className={`flex-1 py-3.5 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 ${
+              activeTab === "convert" 
+                ? "bg-amber-50 text-amber-800 shadow-sm border border-amber-200" 
+                : "text-zinc-600 hover:bg-zinc-50"
+            }`}
           >
             <ArrowRightLeft className="w-4 h-4" /> Convert Credits
           </button>
           <button 
             onClick={() => setActiveTab("topup")}
-            className={`flex-1 py-4 font-bold text-sm transition-colors flex items-center justify-center gap-2 ${activeTab === "topup" ? "bg-blue-50 text-blue-700 border-b-2 border-blue-500" : "text-zinc-600 hover:bg-zinc-50"}`}
+            className={`flex-1 py-3.5 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 ${
+              activeTab === "topup" 
+                ? "bg-blue-50 text-blue-800 shadow-sm border border-blue-200" 
+                : "text-zinc-600 hover:bg-zinc-50"
+            }`}
           >
-            <Plus className="w-4 h-4" /> Top Up
+            <CreditCard className="w-4 h-4 text-blue-600" /> Top Up (Stripe)
           </button>
           <button 
             onClick={() => setActiveTab("history")}
-            className={`flex-1 py-4 font-bold text-sm transition-colors flex items-center justify-center gap-2 ${activeTab === "history" ? "bg-zinc-100 text-zinc-900 border-b-2 border-zinc-900" : "text-zinc-600 hover:bg-zinc-50"}`}
+            className={`flex-1 py-3.5 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 ${
+              activeTab === "history" 
+                ? "bg-zinc-900 text-white shadow-sm" 
+                : "text-zinc-600 hover:bg-zinc-50"
+            }`}
           >
             <History className="w-4 h-4" /> History
           </button>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-zinc-200 p-6 md:p-8">
           
           {/* CONVERT TAB */}
           {activeTab === "convert" && (
             <div className="max-w-md mx-auto py-4 text-center">
-              <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <ArrowRightLeft className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-zinc-900 mb-2">Convert Credits</h3>
-              <p className="text-zinc-500 mb-8">1000 Credits = $1.00 Wallet Balance</p>
+              <p className="text-zinc-500 mb-8 text-sm">1000 Credits = $1.00 NZD Wallet Balance</p>
               
               <div className="mb-6 text-left">
                 <label className="block text-sm font-bold text-zinc-700 mb-2">Amount to convert</label>
@@ -233,40 +388,45 @@ export default function WalletPage() {
                   max={wallet.credits}
                   value={convertAmount} 
                   onChange={(e) => setConvertAmount(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500 text-zinc-900 font-bold"
+                  className="w-full px-4 py-3.5 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500 text-zinc-900 font-bold text-lg"
                 />
               </div>
 
-              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 mb-6 flex justify-between items-center">
-                <span className="text-zinc-600 font-medium">You will receive:</span>
-                <span className="text-2xl font-extrabold text-green-600">${(convertAmount / 1000).toFixed(2)}</span>
+              <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-100 mb-6 flex justify-between items-center">
+                <span className="text-zinc-700 font-semibold text-sm">You will receive:</span>
+                <span className="text-2xl font-extrabold text-green-700">${(convertAmount / 1000).toFixed(2)} NZD</span>
               </div>
 
               <button 
                 onClick={handleConvert}
                 disabled={isConverting || convertAmount <= 0 || convertAmount > wallet.credits}
-                className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"
               >
                 {isConverting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Confirm Conversion"}
               </button>
             </div>
           )}
 
-          {/* TOP UP TAB */}
+          {/* TOP UP TAB (STRIPE) */}
           {activeTab === "topup" && (
             <div className="max-w-md mx-auto py-4 text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <CreditCard className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-zinc-900 mb-2">Top Up Wallet</h3>
-              <p className="text-zinc-500 mb-8">Add funds to purchase premium listings instantly.</p>
+              <h3 className="text-2xl font-bold text-zinc-900 mb-1">Top Up Wallet</h3>
+              <p className="text-zinc-500 text-sm mb-6">Add funds via Stripe to purchase property listing packages instantly.</p>
               
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-4 gap-2 mb-6">
                 {[5, 10, 20, 50].map((amt) => (
                   <button 
                     key={amt}
+                    type="button"
                     onClick={() => setTopUpAmount(amt)}
-                    className={`py-3 rounded-xl font-bold transition-all border ${topUpAmount === amt ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300'}`}
+                    className={`py-3 rounded-xl font-extrabold transition-all text-sm border ${
+                      topUpAmount === amt 
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-md' 
+                        : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
+                    }`}
                   >
                     ${amt}
                   </button>
@@ -274,23 +434,52 @@ export default function WalletPage() {
               </div>
 
               <div className="mb-6 text-left">
-                <label className="block text-sm font-bold text-zinc-700 mb-2">Custom Amount ($)</label>
-                <input 
-                  type="number" 
-                  min="1"
-                  value={topUpAmount} 
-                  onChange={(e) => setTopUpAmount(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 font-bold"
-                />
+                <label className="block text-sm font-bold text-zinc-700 mb-2">Custom Amount (NZD)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">$</span>
+                  <input 
+                    type="number" 
+                    min="1"
+                    step="1"
+                    value={topUpAmount} 
+                    onChange={(e) => setTopUpAmount(Math.max(1, Number(e.target.value)))}
+                    className="w-full pl-8 pr-4 py-3.5 rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 font-bold text-lg"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/80 mb-6 text-left flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-zinc-500 font-medium">Payment Gateway</p>
+                  <p className="text-sm font-bold text-zinc-900 flex items-center gap-1.5 mt-0.5">
+                    <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                    Stripe Checkout (Cards / Apple Pay / Google Pay)
+                  </p>
+                </div>
+                <span className="text-xl font-extrabold text-zinc-900">${Number(topUpAmount).toFixed(2)}</span>
               </div>
 
               <button 
                 onClick={handleTopUp}
                 disabled={isToppingUp || topUpAmount <= 0}
-                className="w-full bg-zinc-900 hover:bg-black disabled:bg-zinc-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-zinc-900 hover:bg-black disabled:bg-zinc-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 text-base"
               >
-                {isToppingUp ? <Loader2 className="w-5 h-5 animate-spin" /> : `Simulate Checkout ($${topUpAmount})`}
+                {isToppingUp ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Connecting to Stripe...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 text-zinc-400" />
+                    Pay ${Number(topUpAmount).toFixed(2)} with Stripe
+                  </>
+                )}
               </button>
+
+              <p className="text-[11px] text-zinc-400 mt-4 flex items-center justify-center gap-1">
+                <Lock className="w-3 h-3 text-zinc-400" /> End-to-end 256-bit encrypted checkout powered by Stripe.
+              </p>
             </div>
           )}
 
@@ -306,16 +495,16 @@ export default function WalletPage() {
                   <div>
                     <h3 className="text-lg font-bold text-zinc-900 mb-4 border-b border-zinc-100 pb-2">Wallet Transactions</h3>
                     {walletTxs.length === 0 ? (
-                      <p className="text-zinc-500 italic text-sm">No wallet transactions yet.</p>
+                      <p className="text-zinc-500 italic text-sm py-4">No wallet transactions yet.</p>
                     ) : (
                       <div className="space-y-3">
                         {walletTxs.map(tx => (
-                          <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-zinc-50 rounded-lg transition-colors border border-transparent hover:border-zinc-100">
+                          <div key={tx.id} className="flex items-center justify-between p-3.5 hover:bg-zinc-50 rounded-xl transition-colors border border-zinc-100">
                             <div>
                               <p className="font-bold text-zinc-900 text-sm">{tx.description}</p>
                               <p className="text-xs text-zinc-500">{new Date(tx.createdAt).toLocaleString()}</p>
                             </div>
-                            <div className={`font-extrabold ${tx.amount > 0 ? 'text-green-600' : 'text-zinc-900'}`}>
+                            <div className={`font-extrabold text-base ${tx.amount > 0 ? 'text-green-600' : 'text-zinc-900'}`}>
                               {tx.amount > 0 ? '+' : ''}{tx.amount > 0 ? '$' : '-$'}{Math.abs(tx.amount).toFixed(2)}
                             </div>
                           </div>
@@ -328,16 +517,16 @@ export default function WalletPage() {
                   <div>
                     <h3 className="text-lg font-bold text-zinc-900 mb-4 border-b border-zinc-100 pb-2">Credit History</h3>
                     {creditTxs.length === 0 ? (
-                      <p className="text-zinc-500 italic text-sm">No credit transactions yet.</p>
+                      <p className="text-zinc-500 italic text-sm py-4">No credit transactions yet.</p>
                     ) : (
                       <div className="space-y-3">
                         {creditTxs.map(tx => (
-                          <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-zinc-50 rounded-lg transition-colors border border-transparent hover:border-zinc-100">
+                          <div key={tx.id} className="flex items-center justify-between p-3.5 hover:bg-zinc-50 rounded-xl transition-colors border border-zinc-100">
                             <div>
                               <p className="font-bold text-zinc-900 text-sm">{tx.reason}</p>
                               <p className="text-xs text-zinc-500">{new Date(tx.createdAt).toLocaleString()}</p>
                             </div>
-                            <div className={`font-extrabold ${tx.credits > 0 ? 'text-amber-500' : 'text-zinc-500'}`}>
+                            <div className={`font-extrabold text-base ${tx.credits > 0 ? 'text-amber-500' : 'text-zinc-500'}`}>
                               {tx.credits > 0 ? '+' : ''}{tx.credits}
                             </div>
                           </div>
@@ -354,17 +543,17 @@ export default function WalletPage() {
         </div>
         
         {/* How to Earn Credits Section */}
-        <div className="mt-8 bg-amber-50 rounded-2xl p-6 md:p-8 border border-amber-100">
-          <h3 className="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2">
+        <div className="mt-8 bg-amber-50/70 rounded-3xl p-6 md:p-8 border border-amber-100">
+          <h3 className="text-xl font-bold text-amber-900 mb-2 flex items-center gap-2">
             <Star className="w-6 h-6 text-amber-500 fill-amber-500" /> 
             How to Earn More Credits
           </h3>
           <p className="text-amber-800 mb-6 text-sm">
-            Credits are a virtual currency that you can convert to real Wallet Balance ($). Earn credits by actively engaging with our platform!
+            Credits are a reward currency that you can convert to real Wallet Balance ($ NZD). Earn credits by actively engaging with our platform!
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
                 <UserPlus className="w-5 h-5" />
               </div>
               <div>
@@ -372,8 +561,8 @@ export default function WalletPage() {
                 <p className="text-sm text-zinc-500 mt-1 leading-snug">Get 1000 credits instantly when you register on our platform.</p>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
                 <Handshake className="w-5 h-5" />
               </div>
               <div>
@@ -381,8 +570,8 @@ export default function WalletPage() {
                 <p className="text-sm text-zinc-500 mt-1 leading-snug">Earn 100 credits for every serious offer you place on a property.</p>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
@@ -390,8 +579,8 @@ export default function WalletPage() {
                 <p className="text-sm text-zinc-500 mt-1 leading-snug">Earn 50 credits each time you schedule a property viewing.</p>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>

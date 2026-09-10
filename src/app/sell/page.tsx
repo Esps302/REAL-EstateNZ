@@ -638,12 +638,26 @@ export default function SellPage() {
  </div>
  <div className="bg-zinc-100 p-4 rounded-xl flex items-center justify-between">
  <span className="font-bold text-zinc-700">Your Wallet Balance:</span>
- <span className="text-xl font-extrabold text-zinc-900">${wallet?.balance.toFixed(2) || '0.00'}</span>
+ <span className="text-xl font-extrabold text-zinc-900">${wallet?.balance.toFixed(2) || '0.00'} NZD</span>
  </div>
  {wallet && wallet.balance < (selectedPlan === "Basic" ? 0.5 : selectedPlan === "Premium" ? 1 : 5) && (
- <div className="text-red-500 text-sm font-bold flex items-center justify-between">
- <span>Insufficient balance. You need ${(selectedPlan === "Basic" ? 0.5 : selectedPlan === "Premium" ? 1 : 5).toFixed(2)}.</span>
- <Link href="/dashboard/wallet" className="underline text-zinc-900 font-bold">Top Up Wallet</Link>
+ <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+ <div>
+ <p className="text-amber-900 font-bold text-sm">
+ Insufficient Balance for {selectedPlan} (${(selectedPlan === "Basic" ? 0.5 : selectedPlan === "Premium" ? 1 : 5).toFixed(2)} NZD)
+ </p>
+ <p className="text-xs text-amber-700 mt-0.5">
+ Top up in a new tab; your balance here updates in real time without losing your form progress!
+ </p>
+ </div>
+ <Link 
+ href="/dashboard/wallet" 
+ target="_blank" 
+ rel="noopener noreferrer"
+ className="px-4 py-2.5 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow transition-all whitespace-nowrap text-center"
+ >
+ Top Up via Stripe &rarr;
+ </Link>
  </div>
  )}
  </div>
