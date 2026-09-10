@@ -559,8 +559,8 @@ const getAmenityIcon = (amenity: string) => {
                 onClick={() => { setInitialServiceType('mortgage'); setIsServiceModalOpen(true); }}
                 className="flex items-center text-left p-4 bg-white border border-blue-100 hover:border-blue-300 hover:shadow-md rounded-sm transition-all group"
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-200 relative mr-4 flex-shrink-0 shadow-sm">
-                  <Image src="/images/pankaj_singh.jpeg" alt="Mortgage Advisor" fill className="object-cover group-hover:scale-110 transition-transform duration-300" />
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mr-4 group-hover:bg-blue-600 transition-colors">
+                  <Landmark className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1">
                   <span className="block font-bold text-zinc-900 group-hover:text-blue-700 transition-colors">Mortgage Advisor</span>
@@ -573,8 +573,8 @@ const getAmenityIcon = (amenity: string) => {
                 onClick={() => { setInitialServiceType('solicitor'); setIsServiceModalOpen(true); }}
                 className="flex items-center text-left p-4 bg-white border border-indigo-100 hover:border-indigo-300 hover:shadow-md rounded-sm transition-all group"
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-200 relative mr-4 flex-shrink-0 shadow-sm">
-                  <Image src="/images/pankaj_singh.jpeg" alt="Property Solicitor" fill className="object-cover group-hover:scale-110 transition-transform duration-300" />
+                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mr-4 group-hover:bg-indigo-600 transition-colors">
+                  <Briefcase className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1">
                   <span className="block font-bold text-zinc-900 group-hover:text-indigo-700 transition-colors">Property Solicitor</span>

@@ -31,11 +31,11 @@ export default function AgentsPage() {
         // If no agents found, we mock some for the UI demonstration
         if (fetchedAgents.length === 0) {
           fetchedAgents.push(
-            { uid: "pankaj-1", email: "Info@spsolutions.org.nz", role: "super_admin", name: "Pankaj Singh", avatarUrl: "/images/pankaj_singh.jpeg" },
-            { uid: "1", email: "sarah@nzestates.co.nz", role: "agent", name: "Sarah Jenkins" },
-            { uid: "2", email: "michael@nzestates.co.nz", role: "agent", name: "Michael Chang" },
-            { uid: "3", email: "elena@nzestates.co.nz", role: "agent", name: "Elena Rodriguez" },
-            { uid: "4", email: "david@nzestates.co.nz", role: "agent", name: "David O'Connor" }
+            { uid: "pankaj-1", email: "Info@spsolutions.org.nz", phone: "+64 210468503", role: "super_admin", name: "Pankaj Singh", avatarUrl: "/images/pankaj_singh.jpeg" },
+            { uid: "1", email: "Info@spsolutions.org.nz", phone: "+64 210468503", role: "agent", name: "Sarah Jenkins" },
+            { uid: "2", email: "Info@spsolutions.org.nz", phone: "+64 210468503", role: "agent", name: "Michael Chang" },
+            { uid: "3", email: "Info@spsolutions.org.nz", phone: "+64 210468503", role: "agent", name: "Elena Rodriguez" },
+            { uid: "4", email: "Info@spsolutions.org.nz", phone: "+64 210468503", role: "agent", name: "David O'Connor" }
           );
         }
 

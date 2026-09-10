@@ -70,7 +70,7 @@ export function ViewingModal({ isOpen, onClose, propertyId, propertyTitle }: Vie
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_SECRET || 'dev-secret-key'}`
         },
         body: JSON.stringify({
-          to: 'sanjayranatanabana@gmail.com', // Admin Email
+          to: 'Info@spsolutions.org.nz', // Admin Notification Email
           templateType: 'serviceRequested',
           payload: {
             name: formData.name,

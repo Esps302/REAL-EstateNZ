@@ -185,7 +185,7 @@ export default function AdminSettingsPage() {
               value={brokerEmail}
               onChange={(e) => setBrokerEmail(e.target.value)}
               className="w-full max-w-md px-4 py-2 bg-white border border-zinc-300 focus:border-[#0073e6] focus:ring-1 focus:ring-[#0073e6] rounded-md text-sm transition-all outline-none"
-              placeholder="e.g., agent@example.com"
+              placeholder="e.g., Info@spsolutions.org.nz"
             />
           </div>
 

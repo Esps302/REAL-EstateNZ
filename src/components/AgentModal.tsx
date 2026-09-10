@@ -58,7 +58,7 @@ export default function AgentModal({ isOpen, onClose }: AgentModalProps) {
      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_SECRET || 'dev-secret-key'}`
    },
    body: JSON.stringify({
-     to: 'sanjayranatanabana@gmail.com', // Admin Email (from .env or hardcoded for now)
+     to: 'Info@spsolutions.org.nz', // Admin Email
      templateType: 'agentRequested',
      payload: {
        name,
