@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, X, Star, Award, ShieldCheck, User, Mail, Phone, Loader2, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { nzLocations } from "@/lib/nzLocations";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -14,12 +14,20 @@ import { sendNotificationEmail } from "@/utils/sendNotificationEmail";
 interface AgentModalProps {
  isOpen: boolean;
  onClose: () => void;
+ defaultInterest?: "Buy" | "Sell" | "Rent";
 }
 
-export default function AgentModal({ isOpen, onClose }: AgentModalProps) {
+export default function AgentModal({ isOpen, onClose, defaultInterest = "Buy" }: AgentModalProps) {
   const { user } = useAuth();
   const [region, setRegion] = useState("All New Zealand");
- const [interest, setInterest] = useState("Buy");
+  const [interest, setInterest] = useState<string>(defaultInterest);
+
+  // Sync interest whenever modal opens or defaultInterest changes
+  useEffect(() => {
+    if (isOpen && defaultInterest) {
+      setInterest(defaultInterest);
+    }
+  }, [isOpen, defaultInterest]);
  const [name, setName] = useState("");
  const [email, setEmail] = useState("");
  const [phone, setPhone] = useState("");

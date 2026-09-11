@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, MapPin, Filter, SlidersHorizontal, Bed, Bath, Square, CheckCircle2, Heart, X, Sparkles, ChevronDown, ShieldCheck, UserCircle, ChevronRight, Phone } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, X, ChevronDown, ShieldCheck, UserCircle, ChevronRight } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import { nzLocations } from "@/lib/nzLocations";
 import { Property } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -433,46 +432,46 @@ function SearchPageContent() {
  )}
  </AnimatePresence>
 
- {/* Split Screen Content Layout */}
- <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row relative">
- 
- {/* Properties List (Left Side) */}
- <div className="w-full lg:w-[65%] xl:w-[70%] px-4 sm:px-6 lg:px-8 py-8">
- <div className="flex justify-between items-end mb-8">
- <div>
- <h1 className="text-3xl font-extrabold text-zinc-900 tracking-tight">
- {listingType === 'rent' ? "Properties for Rent" : "Real Estate & Homes for Sale"}
- </h1>
- <p className="text-zinc-500 font-medium mt-1">Showing {filteredProperties.length} results</p>
- </div>
- </div>
+      {/* Split Screen Content Layout */}
+      <div className="flex-grow w-full max-w-[1720px] mx-auto flex flex-col lg:flex-row relative px-4 sm:px-6 lg:px-8 gap-6 xl:gap-8">
+        
+        {/* Properties List (Left Side) - 3 Columns */}
+        <div className="flex-1 min-w-0 py-6">
+          <div className="flex justify-between items-end mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+                {listingType === 'rent' ? "Properties for Rent" : "Real Estate & Homes for Sale"}
+              </h1>
+              <p className="text-zinc-500 font-medium text-sm mt-1">Showing {filteredProperties.length} results</p>
+            </div>
+          </div>
 
- {loading ? (
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
- {[1, 2, 3, 4, 5, 6].map(i => (
- <div key={i} className="animate-pulse bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
- <div className="h-64 bg-zinc-200"></div>
- <div className="p-6 space-y-4">
- <div className="h-6 bg-zinc-200 rounded w-1/3"></div>
- <div className="h-4 bg-zinc-200 rounded w-3/4"></div>
- <div className="h-4 bg-zinc-200 rounded w-1/2"></div>
- </div>
- </div>
- ))}
- </div>
- ) : displayedProperties.length > 0 ? (
- <>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
- {displayedProperties.map((property) => (
- <div 
- key={property.id} 
- onMouseEnter={() => setHoveredPropertyId(property.id)}
- onMouseLeave={() => setHoveredPropertyId(null)}
- >
- <PropertyCard property={property} />
- </div>
- ))}
- </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="animate-pulse bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                  <div className="h-56 bg-zinc-200"></div>
+                  <div className="p-5 space-y-3">
+                    <div className="h-5 bg-zinc-200 rounded w-1/3"></div>
+                    <div className="h-4 bg-zinc-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-zinc-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : displayedProperties.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5">
+                {displayedProperties.map((property) => (
+                  <div 
+                    key={property.id} 
+                    onMouseEnter={() => setHoveredPropertyId(property.id)}
+                    onMouseLeave={() => setHoveredPropertyId(null)}
+                  >
+                    <PropertyCard property={property} />
+                  </div>
+                ))}
+              </div>
  
   {/* Pagination Controls */}
   {totalPages > 1 && (
@@ -547,28 +546,41 @@ function SearchPageContent() {
  )}
  </div>
 
-        {/* Map Container (Right Side) */}
-        <div className="hidden lg:block lg:w-[35%] xl:w-[30%] p-4 pl-0 pb-12">
-          <div className="sticky top-[80px] flex flex-col gap-4 h-[calc(100vh-100px)] w-full relative">
+        {/* Compact Right Sidebar (Map + Expert Help) */}
+        <div className="hidden lg:block w-[300px] xl:w-[330px] flex-shrink-0 py-6">
+          <div className="sticky top-[90px] flex flex-col gap-4 w-full">
             
-            {/* Map */}
-            <div className="flex-1 w-full relative z-0 border border-zinc-300 min-h-[250px]">
-              <Map properties={filteredProperties} hoveredPropertyId={hoveredPropertyId} />
+            {/* Interactive Map Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden p-2">
+              <div className="flex items-center justify-between px-2.5 py-1.5 bg-zinc-50 rounded-lg mb-2 border border-zinc-100">
+                <span className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#0073e6]" />
+                  Map View
+                </span>
+                <span className="text-[11px] font-semibold text-zinc-500 bg-white px-2 py-0.5 rounded border border-zinc-200">
+                  {filteredProperties.length} listings
+                </span>
+              </div>
+              <div className="w-full h-[250px] xl:h-[270px] rounded-xl overflow-hidden relative z-0 border border-zinc-100">
+                <Map properties={filteredProperties} hoveredPropertyId={hoveredPropertyId} />
+              </div>
             </div>
 
             {/* Professional Lead Generation Box */}
-            <div className="bg-white border border-zinc-300 shadow-md flex-shrink-0 overflow-hidden relative group">
+            <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden relative">
               {/* Decorative top accent */}
-              <div className="h-1.5 w-full bg-[#0073e6]"></div>
+              <div className="h-1 w-full bg-[#0073e6]"></div>
               
-              <div className="p-5 border-b border-zinc-100 bg-gradient-to-b from-white to-zinc-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <UserCircle className="w-5 h-5 text-[#0073e6]" />
-                  <p className="text-xs font-bold text-[#0073e6] uppercase tracking-wider">Expert Advice</p>
+              <div className="p-4 bg-gradient-to-b from-white to-zinc-50/60">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0073e6] uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                    <UserCircle className="w-3 h-3" />
+                    Expert Advice
+                  </span>
                 </div>
                 
-                <div className="flex gap-4 items-center">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0 bg-zinc-200 relative">
+                <div className="flex gap-3 items-center">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow flex-shrink-0 bg-zinc-100 relative">
                     <Image 
                       src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256&h=256" 
                       alt="Professional Agent"
@@ -577,26 +589,25 @@ function SearchPageContent() {
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-zinc-900 leading-tight">Need expert help?</h3>
-                    <p className="text-xs text-zinc-600 mt-1">
-                      Enter your number and our team will match you with a top agent.
+                    <h3 className="text-sm font-bold text-zinc-900 leading-tight">Need expert help?</h3>
+                    <p className="text-[11px] text-zinc-500 mt-0.5 leading-snug">
+                      Match with verified local agents across NZ.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 bg-white">
-                <div className="space-y-3">
-                  <button 
-                    onClick={() => setIsAgentModalOpen(true)}
-                    className="w-full py-3.5 bg-[#0073e6] hover:bg-[#005bb5] text-white font-bold text-sm transition-colors text-center shadow-md flex justify-center items-center gap-2 rounded-sm"
-                  >
-                    Find an Agent Now <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-center gap-2 text-xs font-medium text-zinc-500">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>100% free and no obligation</span>
+              <div className="p-4 pt-1 bg-white">
+                <button 
+                  onClick={() => setIsAgentModalOpen(true)}
+                  className="w-full py-2.5 bg-[#0073e6] hover:bg-[#005bb5] text-white font-bold text-xs transition-all text-center shadow-sm flex justify-center items-center gap-1.5 rounded-xl group cursor-pointer"
+                >
+                  <span>Find an Agent Now</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+                <div className="mt-3 pt-2.5 border-t border-zinc-100 flex items-center justify-center gap-1.5 text-[11px] font-medium text-zinc-500">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                  <span>100% Free · No Obligation</span>
                 </div>
               </div>
             </div>
