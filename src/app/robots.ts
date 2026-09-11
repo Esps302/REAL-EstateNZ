@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.heavenbrick.com";
+  const rawBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.heavenbrick.com";
+  const baseUrl = rawBaseUrl.replace(/\/+$/, "");
 
   return {
     rules: [

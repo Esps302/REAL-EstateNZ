@@ -3,7 +3,8 @@ import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.heavenbrick.com";
+  const rawBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.heavenbrick.com";
+  const baseUrl = rawBaseUrl.replace(/\/+$/, "");
 
   // 1. Core High-Value Pages
   const staticRoutes: MetadataRoute.Sitemap = [
