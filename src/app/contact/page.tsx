@@ -1,3 +1,19 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Heaven Bricks | Real Estate Support & Offices New Zealand",
+  description: "Get in touch with Heaven Bricks Auckland office for property appraisals, buyer representation, and seller listings across New Zealand.",
+  keywords: [
+    "Contact Heaven Bricks",
+    "real estate office Auckland",
+    "property agent contact NZ",
+    "Papakura real estate office",
+  ],
+  alternates: {
+    canonical: "/contact",
+  },
+};
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-zinc-50 pt-28 md:pt-32 pb-20 font-sans relative z-10">

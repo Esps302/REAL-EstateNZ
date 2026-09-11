@@ -1,3 +1,19 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Heaven Bricks | Luxury Digital Real Estate Brokerage NZ",
+  description: "Discover Heaven Bricks - New Zealand's premier digital brokerage specializing in high-end residential estates, modern architecture, and confidential property sales.",
+  keywords: [
+    "About Heaven Bricks",
+    "luxury real estate agency New Zealand",
+    "trusted property brokers Auckland",
+    "real estate technology NZ",
+  ],
+  alternates: {
+    canonical: "/about",
+  },
+};
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-20 font-sans">
