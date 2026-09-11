@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { OfferModal } from "@/components/OfferModal";
 import { ServiceRequestModal } from "@/components/ServiceRequestModal";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getOptimizedImageUrl } from "@/utils/imageOptimizer";
 import { ViewingModal } from "@/components/ViewingModal";
 import ReviewSection from "@/components/ReviewSection";
 import MortgageCalculator from "@/components/MortgageCalculator";
@@ -387,7 +388,7 @@ const getAmenityIcon = (amenity: string) => {
         onClick={() => { setCurrentImageIndex(0); setIsImageModalOpen(true); }}
       >
         <Image 
-          src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'} 
+          src={getOptimizedImageUrl(property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80', 1200)} 
           alt={property.title}
           fill
           sizes="(max-width: 768px) 100vw, 66vw"
@@ -408,7 +409,7 @@ const getAmenityIcon = (amenity: string) => {
         <>
           {[1, 2, 3, 4, 5, 6].map((idx) => (
             <div key={idx} className="relative hidden md:block cursor-pointer overflow-hidden md:col-span-1 md:row-span-1" onClick={() => { setCurrentImageIndex(idx); setIsImageModalOpen(true); }}>
-              <Image src={property.images[idx]} alt={property.title} fill sizes="16vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+              <Image src={getOptimizedImageUrl(property.images[idx], 400)} alt={property.title} fill sizes="16vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" loading="lazy" />
               <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
             </div>
           ))}
@@ -419,7 +420,7 @@ const getAmenityIcon = (amenity: string) => {
       {property.images && property.images.length > 1 && property.images.length < 7 && (
         property.images.slice(1, 7).map((img, idx) => (
           <div key={idx} className="relative hidden md:block cursor-pointer overflow-hidden md:col-span-2 md:row-span-1" onClick={() => { setCurrentImageIndex(idx + 1); setIsImageModalOpen(true); }}>
-            <Image src={img} alt={property.title} fill sizes="33vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <Image src={getOptimizedImageUrl(img, 600)} alt={property.title} fill sizes="33vw" className="object-cover transition-transform duration-700 hover:scale-[1.03]" loading="lazy" />
             <div className="absolute inset-0 bg-black/0 group-hover/gallery:bg-black/20 hover:!bg-transparent transition-colors duration-300 pointer-events-none"></div>
           </div>
         ))
@@ -759,11 +760,11 @@ const getAmenityIcon = (amenity: string) => {
      )}
 
      <div className="relative w-full max-w-7xl h-[85vh] mx-4" onClick={(e) => e.stopPropagation()}>
-       <Image 
-         src={property.images[currentImageIndex] || property.images[0]}
-         alt={property.title}
-         fill
-         className="object-contain"
+        <Image 
+          src={getOptimizedImageUrl(property.images[currentImageIndex] || property.images[0], 1600)}
+          alt={property.title}
+          fill
+          className="object-contain"
          quality={100}
        />
      </div>

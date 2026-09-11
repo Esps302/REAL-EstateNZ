@@ -3,6 +3,7 @@ import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { Property } from '@/types';
 import { useAuth } from '@/context/AuthContext';
+import { getOptimizedImageUrl } from '@/utils/imageOptimizer';
 
 interface MapMarkerProps {
   property: Property;
@@ -63,9 +64,10 @@ export function MapMarker({ property, icon, isHovered }: MapMarkerProps) {
         >
           <div className="relative h-32 w-full mb-2 rounded-lg overflow-hidden">
             <img 
-              src={property.images?.[0] || "/hero.png"} 
+              src={getOptimizedImageUrl(property.images?.[0] || "/hero.png", 300)} 
               alt={property.title}
               className="w-full h-full object-cover"
+              loading="lazy"
             />
             <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-sm">
               {property.listingType}

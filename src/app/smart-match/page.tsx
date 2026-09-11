@@ -11,6 +11,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useFavorites } from "@/hooks/useFavorites";
+import { getOptimizedImageUrl } from "@/utils/imageOptimizer";
 
 export interface SwipeableCardRef {
   swipe: (dir: "left" | "right") => void;
@@ -187,7 +188,8 @@ const SwipeableCard = forwardRef<SwipeableCardRef, { property: Property, onSwipe
     else setSwipeDir(null);
   };
 
-  const imageSrc = property.images && property.images.length > 0 ? property.images[0] : "/images/placeholder-house.jpg";
+  const rawImage = property.images && property.images.length > 0 ? property.images[0] : "/images/placeholder-house.jpg";
+  const imageSrc = getOptimizedImageUrl(rawImage, 600);
 
   return (
     <motion.div

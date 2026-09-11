@@ -9,6 +9,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Image as ImageIcon, Upload, X, Shield, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Property } from "@/types";
+import { compressImage, compressImages } from "@/utils/imageCompressor";
 
 const AVAILABLE_AMENITIES = [
  "Air Conditioning", "Swimming Pool", "Balcony / Deck", "Gym / Fitness Center", 
@@ -215,18 +216,24 @@ export default function EditPropertyPage() {
    setSubmitting(true);
 
    try {
-     const galleryPromises = galleryImages.map((file, i) => {
-       const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
-       return uploadBytes(gRef, file).then(() => getDownloadURL(gRef));
-     });
+   // Auto-compress all newly added images client-side into WebP
+   const [compressedGallery, compressedFloorPlan] = await Promise.all([
+     compressImages(galleryImages),
+     floorPlanImage ? compressImage(floorPlanImage) : Promise.resolve(undefined)
+   ]);
 
-     let floorPlanPromise: Promise<string | undefined> = Promise.resolve(undefined);
-     if (floorPlanImage) {
-       const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${floorPlanImage.name}`);
-       floorPlanPromise = uploadBytes(fpRef, floorPlanImage).then(() => getDownloadURL(fpRef));
-     } else if (existingFloorPlan) {
-       floorPlanPromise = Promise.resolve(existingFloorPlan);
-     }
+   const galleryPromises = compressedGallery.map((file, i) => {
+     const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
+     return uploadBytes(gRef, file).then(() => getDownloadURL(gRef));
+   });
+
+   let floorPlanPromise: Promise<string | undefined> = Promise.resolve(undefined);
+   if (compressedFloorPlan) {
+     const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${compressedFloorPlan.name}`);
+     floorPlanPromise = uploadBytes(fpRef, compressedFloorPlan).then(() => getDownloadURL(fpRef));
+   } else if (existingFloorPlan) {
+     floorPlanPromise = Promise.resolve(existingFloorPlan);
+   }
 
      const [newGalleryUrls, finalFloorPlanUrl] = await Promise.all([
        Promise.all(galleryPromises),

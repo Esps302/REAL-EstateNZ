@@ -10,6 +10,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/context/AuthContext";
 import { Property } from "@/types";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getOptimizedImageUrl } from "@/utils/imageOptimizer";
 
 export default function PropertyCard({ property }: { property: Property }) {
  const { toggleFavorite, isFavorited, loading: favLoading } = useFavorites();
@@ -55,11 +56,12 @@ export default function PropertyCard({ property }: { property: Property }) {
  className="absolute inset-0 w-full h-full"
  >
  <Image 
- src={images[currentImageIndex]} 
+ src={getOptimizedImageUrl(images[currentImageIndex], 600)} 
  alt={property.title}
  fill
  className="object-cover transition-transform duration-700 group-hover:scale-110"
  sizes="(max-width: 640px) 130px, (max-width: 1024px) 50vw, 33vw"
+ loading="lazy"
  />
  </motion.div>
  </AnimatePresence>

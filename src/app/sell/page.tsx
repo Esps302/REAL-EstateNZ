@@ -10,6 +10,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Image as ImageIcon, Upload, X, Shield } from "lucide-react";
 import { sendNotificationEmail } from "@/utils/sendNotificationEmail";
+import { compressImage, compressImages } from "@/utils/imageCompressor";
 
 const AVAILABLE_AMENITIES = [
  "Air Conditioning", "Swimming Pool", "Balcony / Deck", "Gym / Fitness Center", 
@@ -194,22 +195,29 @@ export default function SellPage() {
  setSubmitting(true);
 
  try {
-  // 1. Prepare Cover Image Upload
-  const coverRef = ref(storage, `properties/${user.uid}/${Date.now()}_cover_${coverImage.name}`);
-  const coverPromise = uploadBytes(coverRef, coverImage).then(() => getDownloadURL(coverRef));
+   // 0. Auto-compress all images client-side into lightweight WebP (reduces size by 90%+)
+   const [compressedCover, compressedGallery, compressedFloorPlan] = await Promise.all([
+     compressImage(coverImage),
+     compressImages(galleryImages),
+     floorPlanImage ? compressImage(floorPlanImage) : Promise.resolve(undefined)
+   ]);
 
-  // 2. Prepare Gallery Images Uploads
-  const galleryPromises = galleryImages.map((file, i) => {
-    const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
-    return uploadBytes(gRef, file).then(() => getDownloadURL(gRef));
-  });
+   // 1. Prepare Cover Image Upload
+   const coverRef = ref(storage, `properties/${user.uid}/${Date.now()}_cover_${compressedCover.name}`);
+   const coverPromise = uploadBytes(coverRef, compressedCover).then(() => getDownloadURL(coverRef));
 
-  // 2.5 Prepare Floor Plan Upload
-  let floorPlanPromise: Promise<string | undefined> = Promise.resolve(undefined);
-  if (floorPlanImage) {
-    const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${floorPlanImage.name}`);
-    floorPlanPromise = uploadBytes(fpRef, floorPlanImage).then(() => getDownloadURL(fpRef));
-  }
+   // 2. Prepare Gallery Images Uploads
+   const galleryPromises = compressedGallery.map((file, i) => {
+     const gRef = ref(storage, `properties/${user.uid}/${Date.now()}_gallery_${i}_${file.name}`);
+     return uploadBytes(gRef, file).then(() => getDownloadURL(gRef));
+   });
+
+   // 2.5 Prepare Floor Plan Upload
+   let floorPlanPromise: Promise<string | undefined> = Promise.resolve(undefined);
+   if (compressedFloorPlan) {
+     const fpRef = ref(storage, `properties/${user.uid}/${Date.now()}_floorplan_${compressedFloorPlan.name}`);
+     floorPlanPromise = uploadBytes(fpRef, compressedFloorPlan).then(() => getDownloadURL(fpRef));
+   }
 
   // 3. Execute all uploads in parallel for maximum speed
   const [coverUrl, galleryUrls, floorPlanUrl] = await Promise.all([
