@@ -9,7 +9,10 @@ function initAdminApp() {
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  // Properly handle literal \n and strip any surrounding quotes that Next.js might retain
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY
+    ?.replace(/\\n/g, '\n')
+    ?.replace(/^"|"$/g, '');
 
   if (!projectId || !clientEmail || !privateKey) {
     console.warn('Firebase Admin credentials not fully configured in environment.');

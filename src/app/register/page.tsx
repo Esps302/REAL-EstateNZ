@@ -28,11 +28,8 @@ export default function RegisterPage() {
  const { user } = useAuth();
 
 
- useEffect(() => {
- if (user) {
- router.push('/dashboard');
- }
- }, [user, router]);
+ 
+ 
 
  const handleRegister = async (e: React.FormEvent) => {
  e.preventDefault();
