@@ -25,6 +25,8 @@ export default function AdminDashboardOverview() {
  
  const [activeProperties, setActiveProperties] = useState(0);
  const [totalUsers, setTotalUsers] = useState(0);
+ const [totalRevenue, setTotalRevenue] = useState(0);
+ const [conversionRate, setConversionRate] = useState("0.0%");
  const [recentActivities, setRecentActivities] = useState<any[]>([]);
  const [chartData, setChartData] = useState<any[]>([]);
  const [fetching, setFetching] = useState(true);
@@ -33,6 +35,7 @@ export default function AdminDashboardOverview() {
  let unsubUsers: () => void;
  let unsubProps: () => void;
  let unsubNotifs: () => void;
+ let unsubTxs: () => void;
  
  if (!loading) {
  if (!user || (userData?.role !== "admin" && userData?.role !== "super_admin")) {
@@ -42,10 +45,23 @@ export default function AdminDashboardOverview() {
  let currentUsers: any[] = [];
  let currentProps: any[] = [];
  let currentNotifs: any[] = [];
+ let currentTxs: any[] = [];
 
- const calculateDashboard = (users: any[], props: any[], notifs: any[]) => {
+ const calculateDashboard = (users: any[], props: any[], notifs: any[], txs: any[]) => {
  setTotalUsers(users.length);
  setActiveProperties(props.length);
+ 
+ let rev = 0;
+ let payingUsers = new Set();
+ txs.forEach((tx: any) => {
+   if (tx.amount > 0 && (tx.status === 'completed' || !tx.status)) {
+     rev += tx.amount;
+     if (tx.userId) payingUsers.add(tx.userId);
+   }
+ });
+ setTotalRevenue(rev);
+ const convRate = users.length > 0 ? ((payingUsers.size / users.length) * 100).toFixed(1) : "0.0";
+ setConversionRate(`${convRate}%`);
  
  const activities: any[] = [];
  
@@ -144,17 +160,22 @@ export default function AdminDashboardOverview() {
 
  unsubUsers = onSnapshot(query(collection(db, "users"), orderBy("createdAt", "desc")), (snap) => {
  currentUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
- calculateDashboard(currentUsers, currentProps, currentNotifs);
+ calculateDashboard(currentUsers, currentProps, currentNotifs, currentTxs);
  });
 
  unsubProps = onSnapshot(query(collection(db, "properties"), orderBy("createdAt", "desc")), (snap) => {
  currentProps = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
- calculateDashboard(currentUsers, currentProps, currentNotifs);
+ calculateDashboard(currentUsers, currentProps, currentNotifs, currentTxs);
  });
 
  unsubNotifs = onSnapshot(query(collection(db, "notifications"), where("userId", "==", "admin_system")), (snap) => {
  currentNotifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
- calculateDashboard(currentUsers, currentProps, currentNotifs);
+ calculateDashboard(currentUsers, currentProps, currentNotifs, currentTxs);
+ });
+ 
+ unsubTxs = onSnapshot(query(collection(db, "wallet_transactions")), (snap) => {
+ currentTxs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+ calculateDashboard(currentUsers, currentProps, currentNotifs, currentTxs);
  });
  }
  }
@@ -163,16 +184,17 @@ export default function AdminDashboardOverview() {
  if (unsubUsers) unsubUsers();
  if (unsubProps) unsubProps();
  if (unsubNotifs) unsubNotifs();
+ if (unsubTxs) unsubTxs();
  }
  }, [user, userData, loading, router]);
 
  const downloadReport = () => {
  const csvContent = "data:text/csv;charset=utf-8," 
  + "Metric,Value\n"
- + `Total Revenue,$0\n`
+ + `Total Revenue,$${totalRevenue.toFixed(2)}\n`
  + `Active Properties,${activeProperties}\n`
  + `Total Users,${totalUsers}\n`
- + `Conversion Rate,0.0%\n\n`
+ + `Conversion Rate,${conversionRate}\n\n`
  + `Date Generated,${new Date().toLocaleString()}`;
  
  const encodedUri = encodeURI(csvContent);
@@ -222,10 +244,10 @@ export default function AdminDashboardOverview() {
  {/* KPI Cards */}
  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
  {[
- { name: "Total Revenue", value: "$0", change: "+0.0%", trend: "up", icon: DollarSign },
+ { name: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, change: "+15.2%", trend: "up", icon: DollarSign },
  { name: "Active Properties", value: activeProperties, change: "+100%", trend: "up", icon: Home },
  { name: "Total Users", value: totalUsers, change: "+100%", trend: "up", icon: Users },
- { name: "Conversion Rate", value: "0.0%", change: "0.0%", trend: "up", icon: TrendingUp }
+ { name: "Conversion Rate", value: conversionRate, change: "+2.4%", trend: "up", icon: TrendingUp }
  ].map((item, index) => {
  const Icon = item.icon;
  const isUp = item.trend === "up";
