@@ -129,16 +129,28 @@ function SearchPageContent() {
  const filteredProperties = properties.filter(p => {
  if ((listingType === 'buy' && p.listingType !== 'For Sale') || (listingType === 'rent' && p.listingType !== 'For Rent')) return false;
  
- if (location !== "All New Zealand" && p.region !== location && p.city !== location) return false;
- if (district !== "All districts" && p.district !== district && p.city !== district) return false;
- if (suburb !== "All suburbs" && p.suburb !== suburb) return false;
+ if (location !== "All New Zealand") {
+     const loc = location.toLowerCase();
+     if (p.region?.toLowerCase() !== loc && p.city?.toLowerCase() !== loc) return false;
+ }
+ if (district !== "All districts") {
+     const dist = district.toLowerCase();
+     if (p.district?.toLowerCase() !== dist && p.city?.toLowerCase() !== dist) return false;
+ }
+ if (suburb !== "All suburbs") {
+     const sub = suburb.toLowerCase();
+     if (p.suburb?.toLowerCase() !== sub) return false;
+ }
 
  if (searchTerm) {
- const term = searchTerm.toLowerCase();
- const match = p.title.toLowerCase().includes(term) || 
- p.city.toLowerCase().includes(term) || 
- p.suburb.toLowerCase().includes(term);
- if (!match) return false;
+     const term = searchTerm.toLowerCase();
+     const titleMatch = p.title?.toLowerCase().includes(term) || false;
+     const cityMatch = p.city?.toLowerCase().includes(term) || false;
+     const suburbMatch = p.suburb?.toLowerCase().includes(term) || false;
+     const regionMatch = p.region?.toLowerCase().includes(term) || false;
+     const districtMatch = p.district?.toLowerCase().includes(term) || false;
+     
+     if (!titleMatch && !cityMatch && !suburbMatch && !regionMatch && !districtMatch) return false;
  }
  if (priceRange !== "any") {
  if (listingType === 'buy') {
