@@ -319,21 +319,14 @@ function SearchPageContent() {
 
  {/* TradeMe Style Search Header */}
  <div className="w-full bg-white pt-8 pb-10 shadow-sm z-40 relative border-b border-zinc-200">
- <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+ <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 -mt-16">
+ <div className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-lg border border-zinc-200">
+ <h2 className="text-2xl font-extrabold text-zinc-900 mb-6">Search New Zealand's largest range of properties</h2>
  
- <h1 className="text-2xl md:text-3xl font-extrabold text-zinc-900 mb-6 tracking-tight">
- Search New Zealand's largest range of properties
- </h1>
-
-
-
- <div className="flex flex-col xl:flex-row gap-4 items-center">
- {/* Search Bar Container */}
- <div className="flex-1 w-full flex flex-col md:flex-row border border-zinc-300 rounded overflow-hidden">
- <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-300">
- 
- {/* Free Text Input (Region) */}
- <div className="relative bg-white cursor-pointer hover:bg-zinc-50 flex-1 border-b md:border-b-0">
+ <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+ <div className="flex-1 w-full flex flex-col md:flex-row border border-zinc-200 bg-white rounded overflow-hidden">
+ {/* Dropdown 1 */}
+ <div className="relative bg-white cursor-pointer hover:bg-zinc-50 flex-1 border-b md:border-b-0 md:border-r border-zinc-200">
  <select 
  value={location} 
  onChange={e => {
@@ -341,7 +334,7 @@ function SearchPageContent() {
  setDistrict("All districts");
  setSuburb("All suburbs");
  }} 
- className="w-full appearance-none bg-transparent py-2.5 pl-4 pr-10 text-zinc-900 font-medium cursor-pointer focus:outline-none"
+ className="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-zinc-900 font-medium cursor-pointer focus:outline-none"
  >
  <option>All New Zealand</option>
  {Object.keys(nzLocations).map(region => (
@@ -352,7 +345,7 @@ function SearchPageContent() {
  </div>
 
  {/* Dropdown 2 */}
- <div className="relative bg-white cursor-pointer hover:bg-zinc-50 flex-1 border-b md:border-b-0">
+ <div className="relative bg-white cursor-pointer hover:bg-zinc-50 flex-1 border-b md:border-b-0 md:border-r border-zinc-200">
  <select 
  value={district} 
  onChange={e => {
@@ -360,7 +353,7 @@ function SearchPageContent() {
  setSuburb("All suburbs");
  }} 
  disabled={location === "All New Zealand"}
- className="w-full appearance-none bg-transparent py-2.5 pl-4 pr-10 text-zinc-600 font-medium cursor-pointer focus:outline-none disabled:opacity-50"
+ className="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-zinc-600 font-medium cursor-pointer focus:outline-none disabled:opacity-50"
  >
  <option>All districts</option>
  {location !== "All New Zealand" && Object.keys(nzLocations[location] || {}).map(dist => (
@@ -376,7 +369,7 @@ function SearchPageContent() {
  value={suburb} 
  onChange={e => setSuburb(e.target.value)} 
  disabled={district === "All districts"}
- className="w-full appearance-none bg-transparent py-2.5 pl-4 pr-10 text-zinc-600 font-medium cursor-pointer focus:outline-none disabled:opacity-50"
+ className="w-full appearance-none bg-transparent py-3 pl-4 pr-10 text-zinc-600 font-medium cursor-pointer focus:outline-none disabled:opacity-50"
  >
  <option>All suburbs</option>
  {location !== "All New Zealand" && district !== "All districts" && (nzLocations[location]?.[district] || []).map((sub: string) => (
@@ -385,20 +378,19 @@ function SearchPageContent() {
  </select>
  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
  </div>
- </div>
  
  {/* Submit Button */}
- <button className="bg-[#0073e6] hover:bg-[#005bb5] text-white font-bold px-12 py-2.5 flex items-center justify-center transition-colors">
+ <button className="bg-[#0073e6] hover:bg-[#005bb5] text-white font-bold px-12 py-3 md:py-0 flex items-center justify-center transition-colors border-t md:border-t-0 md:border-l border-[#005bb5]">
  Search
  </button>
  </div>
 
  {/* Desktop Filters (Beds & Price) */}
- <div className="hidden xl:flex gap-2">
+ <div className="hidden lg:flex gap-2">
  <select 
  value={priceRange}
  onChange={(e) => setPriceRange(e.target.value)}
- className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer"
+ className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
  >
  <option value="any">Any Price</option>
  <option value="0-500k">$0 - $500k</option>
@@ -408,7 +400,7 @@ function SearchPageContent() {
  <select 
  value={beds}
  onChange={(e) => setBeds(e.target.value)}
- className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer"
+ className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
  >
  <option value="any">Beds & Baths</option>
  <option value="2+">2+ Beds</option>
@@ -417,7 +409,7 @@ function SearchPageContent() {
  <select 
  value={baths}
  onChange={(e) => setBaths(e.target.value)}
- className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer"
+ className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
  >
  <option value="any">Any Baths</option>
  <option value="1+">1+ Baths</option>
@@ -426,25 +418,27 @@ function SearchPageContent() {
  <select 
  value={propertyType}
  onChange={(e) => setPropertyType(e.target.value)}
- className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer"
+ className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
  >
-  <option value="any">Property Type</option>
-  <option value="House">House</option>
-  <option value="Townhouse">Townhouse</option>
-  <option value="Apartment">Apartment</option>
-  <option value="Villa">Villa</option>
-  <option value="Land">Land</option>
-  <option value="Commercial">Commercial</option>
+ <option value="any">Property Type</option>
+ <option value="House">House</option>
+ <option value="Townhouse">Townhouse</option>
+ <option value="Apartment">Apartment</option>
+ <option value="Villa">Villa</option>
+ <option value="Land">Land</option>
+ <option value="Commercial">Commercial</option>
  </select>
  </div>
 
  {/* Mobile Filters Trigger */}
  <button 
  onClick={() => setShowMobileFilters(true)}
- className="xl:hidden w-full md:w-auto flex items-center justify-center gap-2 border border-zinc-300 bg-zinc-900 text-white rounded px-5 py-4 text-sm font-bold shadow-md hover:bg-zinc-800 transition-colors"
+ className="lg:hidden w-full md:w-auto flex items-center justify-center gap-2 border border-zinc-300 bg-zinc-900 text-white rounded px-6 py-3 text-sm font-bold shadow-md hover:bg-zinc-800 transition-colors"
  >
- <SlidersHorizontal className="w-4 h-4" /> Filters
+ <SlidersHorizontal className="w-4 h-4" />
+ Filters
  </button>
+ </div>
  </div>
  </div>
  </div>
