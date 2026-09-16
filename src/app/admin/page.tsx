@@ -54,13 +54,14 @@ export default function AdminDashboardOverview() {
  let rev = 0;
  let payingUsers = new Set();
  txs.forEach((tx: any) => {
-   if (tx.amount > 0 && (tx.status === 'completed' || !tx.status)) {
+   // Only count real payments (must have stripeSessionId)
+   if (tx.amount > 0 && tx.stripeSessionId && (tx.status === 'completed' || !tx.status)) {
      rev += tx.amount;
      if (tx.userId) payingUsers.add(tx.userId);
    }
  });
  setTotalRevenue(rev);
- const convRate = users.length > 0 ? ((payingUsers.size / users.length) * 100).toFixed(1) : "0.0";
+ const convRate = totalUsers > 0 ? ((payingUsers.size / totalUsers) * 100).toFixed(1) : "0.0";
  setConversionRate(`${convRate}%`);
  
  const activities: any[] = [];
