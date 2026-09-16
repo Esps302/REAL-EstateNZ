@@ -24,28 +24,40 @@ export function Footer() {
  </div>
  </div>
 
- {/* Quick Links */}
- <div className="w-[45%] md:w-auto flex flex-col items-start lg:items-start text-left">
- <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Properties</h3>
- <ul className="space-y-2 text-base">
- <li><Link href="/search?type=buy" className="hover:text-white transition-colors">Properties for Sale</Link></li>
- <li><Link href="/search?type=rent" className="hover:text-white transition-colors">Properties for Rent</Link></li>
- <li><Link href="/search?query=Auckland" className="hover:text-white transition-colors">Auckland Real Estate</Link></li>
- <li><Link href="/search?query=Queenstown" className="hover:text-white transition-colors">Queenstown Estates</Link></li>
- <li><Link href="/sell" className="hover:text-white transition-colors">List your Property</Link></li>
- </ul>
- </div>
+  {/* Quick Links */}
+  <div className="w-[45%] md:w-auto flex flex-col items-start lg:items-start text-left">
+  <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Properties</h3>
+  <ul className="space-y-2 text-sm">
+  <li><Link href="/search?type=buy" className="hover:text-white transition-colors">Properties for Sale</Link></li>
+  <li><Link href="/search?type=rent" className="hover:text-white transition-colors">Properties for Rent</Link></li>
+  <li><Link href="/sell" className="hover:text-white transition-colors">List your Property</Link></li>
+  <li><Link href="/smart-match" className="hover:text-white transition-colors">Smart Match AI</Link></li>
+  </ul>
+  </div>
 
- {/* Platform */}
- <div className="w-[45%] md:w-auto flex flex-col items-start lg:items-start text-left">
- <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Platform</h3>
- <ul className="space-y-2 text-base">
- <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
- <li><Link href="/agents" className="hover:text-white transition-colors">Our Brokers</Link></li>
- <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
- <li><Link href="/contact" className="hover:text-white transition-colors">Contact Support</Link></li>
- </ul>
- </div>
+  {/* Prime Suburb Locations */}
+  <div className="w-[45%] md:w-auto flex flex-col items-start lg:items-start text-left">
+  <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Locations</h3>
+  <ul className="space-y-2 text-sm">
+  <li><Link href="/locations/papakura" className="hover:text-white transition-colors">Papakura & Rosehill</Link></li>
+  <li><Link href="/locations/remuera" className="hover:text-white transition-colors">Remuera Luxury</Link></li>
+  <li><Link href="/locations/ponsonby" className="hover:text-white transition-colors">Ponsonby Character</Link></li>
+  <li><Link href="/locations/takapuna" className="hover:text-white transition-colors">Takapuna Coastal</Link></li>
+  <li><Link href="/locations/queenstown" className="hover:text-white transition-colors">Queenstown Estates</Link></li>
+  <li><Link href="/locations/wellington-central" className="hover:text-white transition-colors">Wellington Central</Link></li>
+  </ul>
+  </div>
+
+  {/* Platform */}
+  <div className="w-[45%] md:w-auto flex flex-col items-start lg:items-start text-left">
+  <h3 className="text-white font-bold mb-3 uppercase tracking-wider text-base">Platform</h3>
+  <ul className="space-y-2 text-sm">
+  <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+  <li><Link href="/agents" className="hover:text-white transition-colors">Our Brokers</Link></li>
+  <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+  <li><Link href="/contact" className="hover:text-white transition-colors">Contact Support</Link></li>
+  </ul>
+  </div>
 
  {/* Contact */}
  <div className="w-full md:w-auto flex flex-col items-start lg:items-start text-left">

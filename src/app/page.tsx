@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import LeadGenForm from "@/components/LeadGenForm";
 import PropertyCard from "@/components/PropertyCard";
 import NZSearchAutocomplete from "@/components/NZSearchAutocomplete";
+import FAQAccordion from "@/components/FAQAccordion";
 import { Property } from "@/types";
 
 export default function Home() {
@@ -266,8 +267,128 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Suburb Quick Links Banner */}
+          <div className="mt-12 pt-8 border-t border-zinc-800">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-4">
+              Explore High-Demand Suburb Landing Pages
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/locations/papakura" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Papakura & Rosehill &rarr;
+              </Link>
+              <Link href="/locations/remuera" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Remuera Luxury &rarr;
+              </Link>
+              <Link href="/locations/ponsonby" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Ponsonby Villas &rarr;
+              </Link>
+              <Link href="/locations/takapuna" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Takapuna Beach &rarr;
+              </Link>
+              <Link href="/locations/queenstown" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Queenstown Estates &rarr;
+              </Link>
+              <Link href="/locations/wellington-central" className="px-4 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-semibold text-white transition-all">
+                Wellington Central &rarr;
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* 6. Frequently Asked Questions (Google Rich Snippet SEO) */}
+      <section className="py-16 md:py-20 bg-zinc-50 border-t border-zinc-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#0073e6] bg-blue-50 px-3 py-1 rounded-full">
+              Common Questions
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 mt-3 mb-3 tracking-tight">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sm md:text-base text-zinc-600 max-w-xl mx-auto">
+              Everything you need to know about buying, selling, and confidential property advisory with Heaven Bricks in New Zealand.
+            </p>
+          </div>
+
+          <FAQAccordion faqs={[
+            {
+              question: "How does Heaven Bricks protect buyer and seller privacy?",
+              answer: "Heaven Bricks is a digital-first confidential brokerage. We operate a zero-direct-contact protocol between buyers and sellers. All negotiations, reserve prices, and financial qualifications are conducted securely through our licensed managing brokers, ensuring your privacy is never compromised."
+            },
+            {
+              question: "How can I get a free property appraisal in Auckland?",
+              answer: "You can request a free, no-obligation market appraisal by submitting your property address through our website or contacting our Auckland headquarters in Rosehill, Papakura (+64 210468503). Our brokers provide a comprehensive data-driven valuation report."
+            },
+            {
+              question: "Can overseas or foreign buyers purchase residential property in New Zealand?",
+              answer: "Under New Zealand's Overseas Investment Act (OIA), Australian and Singaporean citizens can buy residential real estate without special consent. Other international buyers may qualify under certain developer exemptions or for qualifying multi-unit developments. Contact our team for confidential guidance."
+            },
+            {
+              question: "What is the difference between Freehold, Cross-Lease, and Unit Title in NZ?",
+              answer: "Freehold (Fee Simple) gives you complete ownership of both the land and building with the greatest freedom. Cross-Lease involves shared ownership of a land parcel with a long-term lease for each dwelling. Unit Title is common in apartments and townhouses, sharing common property managed by a Body Corporate."
+            },
+            {
+              question: "How does the Heaven Bricks Smart Match AI work?",
+              answer: "Our Smart Match system analyzes your architectural preferences, budget, required bedrooms, and target school zones to instantly match you with matching on-market and exclusive off-market properties across New Zealand."
+            }
+          ]} />
+        </div>
+      </section>
+
+      {/* Google FAQ Schema Injection */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How does Heaven Bricks protect buyer and seller privacy?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Heaven Bricks is a digital-first confidential brokerage. We operate a zero-direct-contact protocol between buyers and sellers. All negotiations, reserve prices, and financial qualifications are conducted securely through our licensed managing brokers."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How can I get a free property appraisal in Auckland?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "You can request a free, no-obligation market appraisal by submitting your property address through our website or contacting our Auckland headquarters in Rosehill, Papakura (+64 210468503)."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can overseas or foreign buyers purchase residential property in New Zealand?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Under New Zealand's Overseas Investment Act (OIA), Australian and Singaporean citizens can buy residential real estate without special consent. Other international buyers may qualify under certain developer exemptions."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the difference between Freehold, Cross-Lease, and Unit Title in NZ?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Freehold gives complete ownership of land and building. Cross-Lease involves shared ownership of a land parcel. Unit Title is common in apartments sharing common property."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does the Heaven Bricks Smart Match AI work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Our Smart Match system analyzes your architectural preferences, budget, required bedrooms, and target school zones to instantly match you with on-market and exclusive off-market properties."
+                }
+              }
+            ]
+          })
+        }}
+      />
 
       <AgentModal isOpen={isAgentModalOpen} onClose={() => setIsAgentModalOpen(false)} />
     </div>

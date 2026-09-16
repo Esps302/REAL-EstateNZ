@@ -76,7 +76,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Dynamic approved property listings
+  // 2. High-Intent Suburb / Location Landing Pages
+  const { SUBURBS_DATA } = await import("@/lib/suburbData");
+  const suburbRoutes: MetadataRoute.Sitemap = Object.keys(SUBURBS_DATA).map((slug) => ({
+    url: `${baseUrl}/locations/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }));
+
+  // 3. Dynamic approved property listings
   let propertyRoutes: MetadataRoute.Sitemap = [];
   try {
     const q = query(
@@ -109,5 +118,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Error fetching properties for sitemap:", error);
   }
 
-  return [...staticRoutes, ...propertyRoutes];
+  return [...staticRoutes, ...suburbRoutes, ...propertyRoutes];
 }
