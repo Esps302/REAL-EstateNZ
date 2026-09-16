@@ -323,8 +323,10 @@ function SearchPageContent() {
  <div className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-lg border border-zinc-200">
  <h2 className="text-2xl font-extrabold text-zinc-900 mb-6">Search New Zealand's largest range of properties</h2>
  
- <div className="flex flex-col lg:flex-row gap-4 items-stretch">
- <div className="flex-1 w-full flex flex-col md:flex-row border border-zinc-200 bg-white rounded overflow-hidden">
+ <div className="flex flex-col gap-4">
+ {/* Top Row: Search Bar + Mobile Filters Button */}
+ <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
+ <div className="flex-1 w-full flex flex-col md:flex-row border border-zinc-200 bg-white rounded overflow-hidden shadow-sm">
  {/* Dropdown 1 */}
  <div className="relative bg-white cursor-pointer hover:bg-zinc-50 flex-1 border-b md:border-b-0 md:border-r border-zinc-200">
  <select 
@@ -385,12 +387,22 @@ function SearchPageContent() {
  </button>
  </div>
 
- {/* Desktop Filters (Beds & Price) */}
- <div className="hidden lg:flex gap-2">
+ {/* Mobile Filters Trigger */}
+ <button 
+ onClick={() => setShowMobileFilters(true)}
+ className="lg:hidden w-full md:w-auto flex items-center justify-center gap-2 border border-zinc-300 bg-zinc-900 text-white rounded px-6 py-3 text-sm font-bold shadow-md hover:bg-zinc-800 transition-colors"
+ >
+ <SlidersHorizontal className="w-4 h-4" />
+ Filters
+ </button>
+ </div>
+
+ {/* Desktop Filters (Beds & Price) - New Row */}
+ <div className="hidden lg:flex flex-wrap gap-3">
  <select 
  value={priceRange}
  onChange={(e) => setPriceRange(e.target.value)}
- className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
+ className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded shadow-sm"
  >
  <option value="any">Any Price</option>
  <option value="0-500k">$0 - $500k</option>
@@ -400,7 +412,7 @@ function SearchPageContent() {
  <select 
  value={beds}
  onChange={(e) => setBeds(e.target.value)}
- className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
+ className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded shadow-sm"
  >
  <option value="any">Beds & Baths</option>
  <option value="2+">2+ Beds</option>
@@ -409,7 +421,7 @@ function SearchPageContent() {
  <select 
  value={baths}
  onChange={(e) => setBaths(e.target.value)}
- className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
+ className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded shadow-sm"
  >
  <option value="any">Any Baths</option>
  <option value="1+">1+ Baths</option>
@@ -418,7 +430,7 @@ function SearchPageContent() {
  <select 
  value={propertyType}
  onChange={(e) => setPropertyType(e.target.value)}
- className="border border-zinc-300 px-4 py-3 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded"
+ className="border border-zinc-300 px-4 py-2.5 bg-white text-sm text-zinc-900 font-bold focus:outline-none cursor-pointer rounded shadow-sm"
  >
  <option value="any">Property Type</option>
  <option value="House">House</option>
@@ -429,15 +441,6 @@ function SearchPageContent() {
  <option value="Commercial">Commercial</option>
  </select>
  </div>
-
- {/* Mobile Filters Trigger */}
- <button 
- onClick={() => setShowMobileFilters(true)}
- className="lg:hidden w-full md:w-auto flex items-center justify-center gap-2 border border-zinc-300 bg-zinc-900 text-white rounded px-6 py-3 text-sm font-bold shadow-md hover:bg-zinc-800 transition-colors"
- >
- <SlidersHorizontal className="w-4 h-4" />
- Filters
- </button>
  </div>
  </div>
  </div>
