@@ -54,8 +54,8 @@ export default function AdminDashboardOverview() {
  let rev = 0;
  let payingUsers = new Set();
  txs.forEach((tx: any) => {
-   // Only count real payments (must have stripeSessionId)
-   if (tx.amount > 0 && tx.stripeSessionId && (tx.status === 'completed' || !tx.status)) {
+   // Only count real payments (must have stripeSessionId and not be a test payment)
+   if (tx.amount > 0 && tx.stripeSessionId && !tx.stripeSessionId.startsWith('cs_test_') && (tx.status === 'completed' || !tx.status)) {
      rev += tx.amount;
      if (tx.userId) payingUsers.add(tx.userId);
    }
