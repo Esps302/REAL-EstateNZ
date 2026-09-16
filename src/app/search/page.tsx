@@ -164,7 +164,17 @@ function SearchPageContent() {
  
  if (suburb !== "All suburbs") {
      const sub = suburb.toLowerCase();
-     if (p.suburb?.toLowerCase() !== sub && p.city?.toLowerCase() !== sub) return false;
+     const pSub = p.suburb?.toLowerCase() || "";
+     const pCity = p.city?.toLowerCase() || "";
+     const pDist = p.district?.toLowerCase() || "";
+     const pAddr = p.address?.toLowerCase() || "";
+     
+     // Match if explicit suburb match, or if the suburb name is mentioned in any location field
+     const matchesSuburb = pSub === sub || pCity === sub || 
+                           pSub.includes(sub) || pCity.includes(sub) || 
+                           pDist.includes(sub) || pAddr.includes(sub);
+                           
+     if (!matchesSuburb) return false;
  }
 
  if (searchTerm) {
