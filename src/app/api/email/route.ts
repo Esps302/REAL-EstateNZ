@@ -70,13 +70,34 @@ export async function POST(request: Request) {
         );
         break;
       case 'adminNotificationToUser':
-        subject = payload.title || 'Important Update - Premium Brokerage';
+        subject = payload.title || 'Important Update - Heaven Bricks';
         htmlContent = templates.adminNotificationToUser(
           payload.userName, 
           payload.updateTitle, 
           payload.updateMessage, 
           payload.link,
           payload.status
+        );
+        break;
+      case 'paymentReceiptUser':
+        subject = payload.title || `Payment Receipt - $${Number(payload.amount).toFixed(2)} NZD | Heaven Bricks`;
+        htmlContent = templates.paymentReceiptUser(
+          payload.userName,
+          Number(payload.amount),
+          payload.paymentTypeDescription,
+          payload.referenceId,
+          payload.itemDescription
+        );
+        break;
+      case 'paymentAlertAdmin':
+        subject = payload.title || `[NEW REVENUE] $${Number(payload.amount).toFixed(2)} NZD Received from ${payload.userName}`;
+        htmlContent = templates.paymentAlertAdmin(
+          payload.userName,
+          payload.userEmail,
+          Number(payload.amount),
+          payload.paymentType,
+          payload.referenceId,
+          payload.details
         );
         break;
       default:
