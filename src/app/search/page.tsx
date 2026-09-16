@@ -135,7 +135,18 @@ function SearchPageContent() {
  }
  if (district !== "All districts") {
      const dist = district.toLowerCase();
-     if (p.district?.toLowerCase() !== dist && p.city?.toLowerCase() !== dist) return false;
+     const pDist = p.district?.toLowerCase() || "";
+     const pCity = p.city?.toLowerCase() || "";
+     const pSub = p.suburb?.toLowerCase() || "";
+     
+     // Get all valid suburbs for this district from our master list
+     const districtSuburbs = location !== "All New Zealand" ? (nzLocations as any)[location]?.[district] || [] : [];
+     const isSuburbInDistrict = districtSuburbs.some((s: string) => s.toLowerCase() === pSub);
+     
+     // Match if explicit district match, city match, fuzzy city match, or if the property's suburb belongs to this district
+     if (!isSuburbInDistrict && pDist !== dist && pCity !== dist && !dist.includes(pCity) && !pCity.includes(dist.replace(" city", ""))) {
+         return false;
+     }
  }
  if (suburb !== "All suburbs") {
      const sub = suburb.toLowerCase();
