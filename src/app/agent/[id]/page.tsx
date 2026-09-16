@@ -9,6 +9,55 @@ import { Phone, Mail, MapPin, ShieldCheck, Star, Building, Calendar, User as Use
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+const FALLBACK_BROKERS: Record<string, Partial<User>> = {
+  "pankaj-1": {
+    id: "pankaj-1",
+    name: "Pankaj Singh",
+    email: "Info@spsolutions.org.nz",
+    phone: "+64 210468503",
+    role: "super_admin",
+    location: "Auckland, New Zealand",
+    photoURL: "/images/pankaj_singh.jpeg",
+    createdAt: Date.now() - 86400000 * 365,
+  },
+  "1": {
+    id: "1",
+    name: "Sarah Jenkins",
+    email: "Info@spsolutions.org.nz",
+    phone: "+64 210468503",
+    role: "agent",
+    location: "Remuera, Auckland",
+    createdAt: Date.now() - 86400000 * 200,
+  },
+  "2": {
+    id: "2",
+    name: "Michael Chang",
+    email: "Info@spsolutions.org.nz",
+    phone: "+64 210468503",
+    role: "agent",
+    location: "Queenstown / Central Otago",
+    createdAt: Date.now() - 86400000 * 180,
+  },
+  "3": {
+    id: "3",
+    name: "Elena Rodriguez",
+    email: "Info@spsolutions.org.nz",
+    phone: "+64 210468503",
+    role: "agent",
+    location: "Ponsonby, Auckland",
+    createdAt: Date.now() - 86400000 * 150,
+  },
+  "4": {
+    id: "4",
+    name: "David O'Connor",
+    email: "Info@spsolutions.org.nz",
+    phone: "+64 210468503",
+    role: "agent",
+    location: "Wellington Central",
+    createdAt: Date.now() - 86400000 * 120,
+  },
+};
+
 export default function AgentProfilePage({ params }: { params: { id: string } }) {
  const [agent, setAgent] = useState<User | null>(null);
  const [properties, setProperties] = useState<Property[]>([]);
@@ -19,26 +68,25 @@ export default function AgentProfilePage({ params }: { params: { id: string } })
  useEffect(() => {
  const fetchAgentAndProperties = async () => {
  try {
- // Fetch Agent Details
- const agentDocRef = doc(db, "users", params.id);
- const agentSnap = await getDoc(agentDocRef);
- 
- if (!agentSnap.exists()) {
- setError("Agent not found");
- setLoading(false);
- return;
- }
-
- const agentData = { id: agentSnap.id, ...agentSnap.data() } as User;
- 
- // Ensure the user is actually an agent/seller (optional depending on business logic, but good practice)
- if (!["agent", "seller", "admin", "super_admin"].includes(agentData.role)) {
- setError("User is not an agent");
- setLoading(false);
- return;
- }
-
- setAgent(agentData);
+   // Fetch Agent Details
+   const agentDocRef = doc(db, "users", params.id);
+   const agentSnap = await getDoc(agentDocRef);
+   
+   if (agentSnap.exists()) {
+     const agentData = { id: agentSnap.id, ...agentSnap.data() } as User;
+     if (!["agent", "seller", "admin", "super_admin"].includes(agentData.role)) {
+       setError("User is not an agent");
+       setLoading(false);
+       return;
+     }
+     setAgent(agentData);
+   } else if (FALLBACK_BROKERS[params.id]) {
+     setAgent(FALLBACK_BROKERS[params.id] as User);
+   } else {
+     setError("Agent not found");
+     setLoading(false);
+     return;
+   }
 
  // Fetch Agent's Active Properties
  const propertiesQuery = query(

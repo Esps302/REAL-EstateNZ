@@ -45,10 +45,11 @@ export default function RegisterPage() {
  displayName: name
  });
  
- let finalRole = role;
- if (email.toLowerCase() === 'sanjayranatanabana@gmail.com' || email.toLowerCase() === 'sanjayrana00002023@gmail.com') {
- finalRole = 'super_admin';
- }
+  let finalRole = role;
+  const adminEmails = ['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz', 'sanjayranatanabana@gmail.com', 'sanjayrana00002023@gmail.com'];
+  if (adminEmails.includes(email.toLowerCase())) {
+  finalRole = 'super_admin';
+  }
 
  // Save user to Firestore
  await setDoc(doc(db, "users", userCredential.user.uid), {
@@ -122,7 +123,8 @@ export default function RegisterPage() {
     if (!userDoc.exists()) {
       const userEmail = firebaseUser.email || '';
       let finalRole = 'buyer';
-      if (userEmail.toLowerCase() === 'sanjayranatanabana@gmail.com' || userEmail.toLowerCase() === 'sanjayrana00002023@gmail.com') {
+      const adminEmails = ['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz', 'sanjayranatanabana@gmail.com', 'sanjayrana00002023@gmail.com'];
+      if (adminEmails.includes(userEmail.toLowerCase())) {
         finalRole = 'super_admin';
       }
       await setDoc(userDocRef, {

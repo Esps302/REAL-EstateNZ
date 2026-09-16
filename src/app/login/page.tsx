@@ -42,11 +42,12 @@ export default function LoginPage() {
  const userDoc = await getDoc(userDocRef);
  
  if (!userDoc.exists()) {
- const userEmail = userCredential.user.email || '';
- let finalRole = 'buyer';
- if (userEmail.toLowerCase() === 'sanjayranatanabana@gmail.com' || userEmail.toLowerCase() === 'sanjayrana00002023@gmail.com') {
- finalRole = 'super_admin';
- }
+  const userEmail = userCredential.user.email || '';
+  let finalRole = 'buyer';
+  const adminEmails = ['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz', 'sanjayranatanabana@gmail.com', 'sanjayrana00002023@gmail.com'];
+  if (adminEmails.includes(userEmail.toLowerCase())) {
+  finalRole = 'super_admin';
+  }
 
  await setDoc(userDocRef, {
  id: userCredential.user.uid,
@@ -99,7 +100,8 @@ export default function LoginPage() {
     if (!userDoc.exists()) {
       const userEmail = firebaseUser.email || '';
       let finalRole = 'buyer';
-      if (userEmail.toLowerCase() === 'sanjayranatanabana@gmail.com' || userEmail.toLowerCase() === 'sanjayrana00002023@gmail.com') {
+      const adminEmails = ['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz', 'sanjayranatanabana@gmail.com', 'sanjayrana00002023@gmail.com'];
+      if (adminEmails.includes(userEmail.toLowerCase())) {
         finalRole = 'super_admin';
       }
       await setDoc(userDocRef, {
@@ -199,11 +201,11 @@ export default function LoginPage() {
  </label>
  </div>
 
- <div className="text-sm">
- <a href="#" className="font-semibold text-zinc-900 hover:text-zinc-700 transition-colors">
- Forgot password?
- </a>
- </div>
+  <div className="text-sm">
+  <Link href="/forgot-password" className="font-semibold text-zinc-900 hover:text-zinc-700 transition-colors">
+  Forgot password?
+  </Link>
+  </div>
  </div>
 
  <div className="pt-2">

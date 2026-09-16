@@ -11,6 +11,9 @@ service cloud.firestore {
       return isAuthenticated() && (
         request.auth.token.email == 'sanjay00002023@gmail.com' ||
         request.auth.token.email == 'realestatenz01@gmail.com' ||
+        request.auth.token.email == 'info@spsolutions.org.nz' ||
+        request.auth.token.email == 'sanjayranatanabana@gmail.com' ||
+        request.auth.token.email == 'sanjayrana00002023@gmail.com' ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin'

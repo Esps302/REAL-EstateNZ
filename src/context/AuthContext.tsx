@@ -18,7 +18,18 @@ const AuthContext = createContext<AuthContextType>({ user: null, userData: null,
 
 export const useAuth = () => useContext(AuthContext);
 
- export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const SUPER_ADMIN_EMAILS = [
+  'sanjay00002023@gmail.com',
+  'realestatenz01@gmail.com',
+  'info@spsolutions.org.nz',
+  'sanjayranatanabana@gmail.com',
+  'sanjayrana00002023@gmail.com'
+];
+
+export const isSuperAdminEmail = (email?: string | null) => 
+  Boolean(email && SUPER_ADMIN_EMAILS.includes(email.toLowerCase()));
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<CustomUser | null>(null);
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -43,41 +54,41 @@ export const useAuth = () => useContext(AuthContext);
       setWallet(snap.data() as Wallet);
     }
   });
- 
- unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
- if (docSnap.exists()) {
- const data = docSnap.data() as CustomUser;
- if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz'].includes(firebaseUser.email?.toLowerCase() || '')) {
- data.role = 'super_admin';
- }
- setUserData(data);
- } else {
- if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz'].includes(firebaseUser.email?.toLowerCase() || '')) {
- setUserData({
- id: firebaseUser.uid,
- name: firebaseUser.displayName || 'Sanjay Rana',
- email: firebaseUser.email || '',
- role: 'super_admin',
- createdAt: Date.now()
- });
- } else {
- setUserData(null);
- }
- }
- }, (error) => {
- console.error("Error listening to user data:", error);
- if (['sanjay00002023@gmail.com', 'realestatenz01@gmail.com', 'info@spsolutions.org.nz'].includes(firebaseUser.email?.toLowerCase() || '')) {
- setUserData({
- id: firebaseUser.uid,
- name: firebaseUser.displayName || 'Sanjay Rana',
- email: firebaseUser.email || '',
- role: 'super_admin',
- createdAt: Date.now()
- });
- } else {
- setUserData(null);
- }
- });
+
+  unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data() as CustomUser;
+    if (isSuperAdminEmail(firebaseUser.email)) {
+      data.role = 'super_admin';
+    }
+    setUserData(data);
+  } else {
+    if (isSuperAdminEmail(firebaseUser.email)) {
+      setUserData({
+        id: firebaseUser.uid,
+        name: firebaseUser.displayName || 'Sanjay Rana',
+        email: firebaseUser.email || '',
+        role: 'super_admin',
+        createdAt: Date.now()
+      });
+    } else {
+      setUserData(null);
+    }
+  }
+}, (error) => {
+  console.error("Error listening to user data:", error);
+  if (isSuperAdminEmail(firebaseUser.email)) {
+    setUserData({
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName || 'Sanjay Rana',
+      email: firebaseUser.email || '',
+      role: 'super_admin',
+      createdAt: Date.now()
+    });
+  } else {
+    setUserData(null);
+  }
+});
  } catch (error) {
  console.error("Error setting up user listener:", error);
  }
