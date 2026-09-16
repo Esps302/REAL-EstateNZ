@@ -131,26 +131,40 @@ function SearchPageContent() {
  
  if (location !== "All New Zealand") {
      const loc = location.toLowerCase();
-     if (p.region?.toLowerCase() !== loc && p.city?.toLowerCase() !== loc) return false;
+     const pReg = p.region?.toLowerCase() || "";
+     const pCity = p.city?.toLowerCase() || "";
+     const pSub = p.suburb?.toLowerCase() || "";
+     
+     // True subdivision logic: A property belongs to a Region if its region, city, or suburb falls anywhere in that Region.
+     const regionDistricts = (nzLocations as any)[location] || {};
+     const validDistricts = Object.keys(regionDistricts).map(d => d.toLowerCase());
+     const validSuburbs = Object.values(regionDistricts).flat().map((s: any) => s.toLowerCase());
+     
+     const matchesRegion = pReg === loc || pCity === loc || pCity.includes(loc.replace(" city", "")) || 
+                           validDistricts.some(d => pCity.includes(d) || pReg.includes(d)) || 
+                           validSuburbs.includes(pSub) || validSuburbs.includes(pCity);
+                           
+     if (!matchesRegion) return false;
  }
+ 
  if (district !== "All districts") {
      const dist = district.toLowerCase();
      const pDist = p.district?.toLowerCase() || "";
      const pCity = p.city?.toLowerCase() || "";
      const pSub = p.suburb?.toLowerCase() || "";
      
-     // Get all valid suburbs for this district from our master list
-     const districtSuburbs = location !== "All New Zealand" ? (nzLocations as any)[location]?.[district] || [] : [];
-     const isSuburbInDistrict = districtSuburbs.some((s: string) => s.toLowerCase() === pSub);
+     // True subdivision logic: A property belongs to a District if its district, city, or suburb falls within that District.
+     const districtSuburbs = location !== "All New Zealand" ? ((nzLocations as any)[location]?.[district] || []).map((s: any) => s.toLowerCase()) : [];
      
-     // Match if explicit district match, city match, fuzzy city match, or if the property's suburb belongs to this district
-     if (!isSuburbInDistrict && pDist !== dist && pCity !== dist && !dist.includes(pCity) && !pCity.includes(dist.replace(" city", ""))) {
-         return false;
-     }
+     const matchesDistrict = pDist === dist || pCity === dist || pCity.includes(dist.replace(" city", "")) || 
+                             districtSuburbs.includes(pSub) || districtSuburbs.includes(pCity);
+                             
+     if (!matchesDistrict) return false;
  }
+ 
  if (suburb !== "All suburbs") {
      const sub = suburb.toLowerCase();
-     if (p.suburb?.toLowerCase() !== sub) return false;
+     if (p.suburb?.toLowerCase() !== sub && p.city?.toLowerCase() !== sub) return false;
  }
 
  if (searchTerm) {
