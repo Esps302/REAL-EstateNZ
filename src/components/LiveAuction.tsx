@@ -117,6 +117,7 @@ export default function LiveAuction({ propertyId, startingPrice }: LiveAuctionPr
     try {
       await addDoc(collection(db, "properties", propertyId, "bids"), {
         amount: amountNum,
+        bidderId: user.uid,
         userId: user.uid,
         userName: bidderName,
         userPhone: bidderPhone,

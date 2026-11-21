@@ -152,42 +152,6 @@ export async function convertCreditsToBalance(userId: string, creditsToConvert: 
 }
 
 /**
- * Simulates topping up the wallet with real money.
- */
-export async function simulateTopUpWallet(userId: string, amount: number): Promise<boolean> {
-  if (!userId || amount <= 0) return false;
-  const walletRef = doc(db, "wallets", userId);
-  
-  try {
-    await runTransaction(db, async (transaction) => {
-      const walletDoc = await transaction.get(walletRef);
-      if (!walletDoc.exists()) throw new Error("Wallet not found");
-      
-      const currentBalance = walletDoc.data().balance || 0;
-      
-      transaction.update(walletRef, {
-        balance: currentBalance + amount
-      });
-      
-      const walletTxRef = doc(collection(db, "wallet_transactions"));
-      transaction.set(walletTxRef, {
-        id: walletTxRef.id,
-        userId,
-        type: "top_up",
-        amount,
-        status: "completed",
-        description: "Simulated Top Up via Card",
-        createdAt: Date.now()
-      } as WalletTransaction);
-    });
-    return true;
-  } catch (e) {
-    console.error("Failed to top up wallet:", e);
-    return false;
-  }
-}
-
-/**
  * Purchases a property listing and publishes it.
  */
 export async function purchaseListing(userId: string, propertyData: any, plan: "Basic" | "Premium" | "Featured", price: number): Promise<boolean> {

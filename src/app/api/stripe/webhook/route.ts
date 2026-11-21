@@ -15,8 +15,9 @@ export async function POST(req: Request) {
 
     let event: Stripe.Event;
 
-    // 1. Verify webhook signature when secret is configured
-    if (webhookSecret && !webhookSecret.startsWith('whsec_dummy')) {
+    // 1. Verify webhook signature (STRICT in production)
+    const hasValidSecret = Boolean(webhookSecret && !webhookSecret.startsWith('whsec_dummy'));
+    if (hasValidSecret && webhookSecret) {
       if (!signature) {
         return NextResponse.json(
           { error: 'Missing stripe-signature header' },
@@ -32,8 +33,14 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
+    } else if (process.env.NODE_ENV === 'production') {
+      console.error('❌ STRIPE_WEBHOOK_SECRET is missing or dummy in production. Rejecting webhook.');
+      return NextResponse.json(
+        { error: 'Webhook secret not configured' },
+        { status: 500 }
+      );
     } else {
-      console.warn('⚠️ STRIPE_WEBHOOK_SECRET not set or dummy. Parsing payload directly.');
+      console.warn('⚠️ [DEV ONLY] STRIPE_WEBHOOK_SECRET not set. Parsing payload directly.');
       try {
         event = JSON.parse(rawBody) as Stripe.Event;
       } catch (err: any) {
@@ -95,27 +102,25 @@ export async function POST(req: Request) {
       const now = Date.now();
 
       // =======================================================================
-      // 1. WALLET TOP-UP (Strict Idempotency Protection)
+      // 1. WALLET TOP-UP (Strict Atomic Idempotency Protection)
       // =======================================================================
       if (paymentType === 'wallet_topup') {
-        const existingTxSnap = await adminDb
-          .collection('wallet_transactions')
-          .where('stripeSessionId', '==', sessionId)
-          .limit(1)
-          .get();
-
-        if (!existingTxSnap.empty) {
-          console.log(`[Webhook Idempotency] Session ${sessionId} already credited. Skipping duplicate top-up.`);
-          return NextResponse.json({ received: true, alreadyProcessed: true });
-        }
-
         if (userId && amount > 0) {
+          const txDocId = `stripe_${sessionId}`;
           const walletRef = adminDb.collection('wallets').doc(userId);
-          const txRef = adminDb.collection('wallet_transactions').doc();
+          const txRef = adminDb.collection('wallet_transactions').doc(txDocId);
           const userNotifRef = adminDb.collection('notifications').doc();
           const adminNotifRef = adminDb.collection('notifications').doc();
 
+          let alreadyProcessed = false;
+
           await adminDb.runTransaction(async (t: any) => {
+            const existingTxDoc = await t.get(txRef);
+            if (existingTxDoc.exists) {
+              alreadyProcessed = true;
+              return;
+            }
+
             const walletDoc = await t.get(walletRef);
 
             if (walletDoc.exists) {
@@ -137,7 +142,7 @@ export async function POST(req: Request) {
             }
 
             t.set(txRef, {
-              id: txRef.id,
+              id: txDocId,
               userId,
               type: 'top_up',
               amount,
@@ -173,6 +178,11 @@ export async function POST(req: Request) {
               createdAt: now,
             });
           });
+
+          if (alreadyProcessed) {
+            console.log(`[Webhook Idempotency] Session ${sessionId} already credited. Skipping duplicate top-up.`);
+            return NextResponse.json({ received: true, alreadyProcessed: true });
+          }
 
           // Send Email Receipts & Alerts asynchronously
           if (userEmail) {

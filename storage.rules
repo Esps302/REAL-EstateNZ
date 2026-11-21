@@ -1,25 +1,32 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
     
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'sanjay00002023@gmail.com' ||
+        request.auth.token.email == 'realestatenz01@gmail.com' ||
+        request.auth.token.email == 'info@spsolutions.org.nz' ||
+        request.auth.token.email == 'sanjayranatanabana@gmail.com' ||
+        request.auth.token.email == 'sanjayrana00002023@gmail.com' ||
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin']
+      );
+    }
+
     // Properties images
     match /properties/{userId}/{allPaths=**} {
       allow read: if true;
-      // Only the user who owns the folder can upload to it
+      // Only the user who owns the folder (or an admin) can upload to it
       // Limit file size to 5MB and ensure it's an image
       allow write: if request.auth != null 
-                   && request.auth.uid == userId
+                   && (request.auth.uid == userId || isAdmin())
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
-      // Allow deletion by owner
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
     
-    // User profile images
+    // User profile images (users/{userId}/...)
     match /users/{userId}/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null 
@@ -27,6 +34,25 @@ service firebase.storage {
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
       allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // User profile images uploaded from /settings (profileImages/{userId})
+    match /profileImages/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Site settings assets (e.g., broker avatar uploaded from /admin/settings)
+    match /settings/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin()
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
     }
     
     match /{allPaths=**} {

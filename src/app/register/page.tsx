@@ -72,19 +72,24 @@ export default function RegisterPage() {
   // Navigate immediately
   router.push('/dashboard');
 
-  // Send Welcome Email in background
-  fetch('/api/email', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_SECRET || 'dev-secret-key'}`
-    },
-    body: JSON.stringify({
-      to: email,
-      templateType: 'welcomeConfirmation',
-      payload: { userName: name, role: finalRole }
-    })
-  }).catch(err => console.error("Failed to send welcome email", err));
+  // Send Welcome Email in background using verified Firebase ID token
+  userCredential.user
+    .getIdToken()
+    .then((idToken) =>
+      fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          to: email,
+          templateType: 'welcomeConfirmation',
+          payload: { userName: name, role: finalRole },
+        }),
+      })
+    )
+    .catch((err) => console.error("Failed to send welcome email", err));
 
 } catch (err: any) {
  setError(err.message || 'Failed to register');

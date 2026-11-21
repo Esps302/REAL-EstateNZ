@@ -53,10 +53,8 @@ export default function ContactForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_SECRET || "dev-secret-key"}`,
         },
         body: JSON.stringify({
-          to: "Info@spsolutions.org.nz",
           templateType: "agentRequested",
           payload: {
             name: name.trim(),

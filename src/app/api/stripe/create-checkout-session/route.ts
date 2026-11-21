@@ -2,36 +2,69 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { verifyFirebaseBearerToken } from '@/lib/server-auth';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
+
+function getSafeRedirectUrl(candidate: unknown, fallback: string, allowedBase: string): string {
+  if (typeof candidate !== 'string' || !candidate) return fallback;
+  try {
+    const parsedCandidate = new URL(candidate);
+    const parsedBase = new URL(allowedBase);
+    if (parsedCandidate.origin === parsedBase.origin) {
+      return candidate;
+    }
+  } catch {
+    // fallback if invalid URL
+  }
+  return fallback;
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { 
-      type = 'wallet_topup', 
-      amount, 
-      userId, 
-      propertyId, 
-      serviceType, 
+    const {
+      type = 'wallet_topup',
+      amount,
+      userId: bodyUserId,
+      propertyId,
+      serviceType,
       plan,
-      successUrl, 
-      cancelUrl 
+      successUrl,
+      cancelUrl,
     } = body;
+
+    // Verify Firebase ID token when Firebase Admin Auth is configured
+    let userId: string | undefined;
+    if (getAdminAuth()) {
+      const verifiedUser = await verifyFirebaseBearerToken(req);
+      if (!verifiedUser) {
+        return NextResponse.json(
+          { error: 'Unauthorized: Valid login session required' },
+          { status: 401 }
+        );
+      }
+      userId = verifiedUser.uid;
+    } else {
+      userId = bodyUserId;
+    }
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 401 });
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-      req.headers.get('origin') || 
-      process.env.NEXT_PUBLIC_APP_URL || 
-      'https://heavenbrick.com';
+    const siteUrl = (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      req.headers.get('origin') ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      'https://www.heavenbrick.com'
+    ).replace(/\/+$/, '');
 
     let finalAmount = 0; // in dollars
     let productName = '';
     let productDescription = '';
-    let metadata: Record<string, string> = {
+    const metadata: Record<string, string> = {
       userId,
       type,
     };
@@ -39,29 +72,34 @@ export async function POST(req: Request) {
     let defaultCancelUrl = '';
 
     // =========================================================================
-    // 1. WALLET TOP-UP (Default existing flow)
+    // 1. WALLET TOP-UP
     // =========================================================================
     if (type === 'wallet_topup') {
       const numAmount = Number(amount);
-      if (isNaN(numAmount) || numAmount <= 0) {
-        return NextResponse.json({ error: 'Invalid top-up amount' }, { status: 400 });
+      if (!Number.isFinite(numAmount) || numAmount < 1 || numAmount > 100000) {
+        return NextResponse.json(
+          { error: 'Top-up amount must be between $1 and $100,000 NZD' },
+          { status: 400 }
+        );
       }
-      finalAmount = numAmount;
-      productName = 'RealEstate NZ - Wallet Top-Up';
-      productDescription = `Top up your RealEstate NZ account wallet with $${finalAmount.toFixed(2)} NZD`;
+      finalAmount = Math.round(numAmount * 100) / 100;
+      productName = 'Heaven Bricks - Wallet Top-Up';
+      productDescription = `Top up your Heaven Bricks account wallet with $${finalAmount.toFixed(2)} NZD`;
       metadata.amount = finalAmount.toFixed(2);
       defaultSuccessUrl = `${siteUrl}/dashboard/wallet?session_id={CHECKOUT_SESSION_ID}&success=true`;
       defaultCancelUrl = `${siteUrl}/dashboard/wallet?canceled=true`;
-    } 
+    }
     // =========================================================================
     // 2. PROPERTY BOOKING DEPOSIT (Server-validated price protection)
     // =========================================================================
     else if (type === 'property_booking_deposit') {
       if (!propertyId) {
-        return NextResponse.json({ error: 'Property ID is required for booking deposits' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Property ID is required for booking deposits' },
+          { status: 400 }
+        );
       }
 
-      // Fetch property from Firestore to prevent client price tampering
       let propTitle = 'Property Booking';
       let propPrice = 0;
       let calculatedDeposit = 1000; // Default $1,000 NZD holding deposit
@@ -75,7 +113,6 @@ export async function POST(req: Request) {
           if (pData.bookingDeposit && Number(pData.bookingDeposit) > 0) {
             calculatedDeposit = Number(pData.bookingDeposit);
           } else if (propPrice > 0) {
-            // Standard 1% booking deposit (min $500 NZD, max $5,000 NZD)
             calculatedDeposit = Math.max(500, Math.min(5000, Math.round(propPrice * 0.01)));
           }
         }
@@ -97,19 +134,19 @@ export async function POST(req: Request) {
     // =========================================================================
     else if (type === 'brokerage_fee') {
       const planPrices: Record<string, number> = {
-        Basic: 0.50,
-        Premium: 1.00,
-        Featured: 5.00,
+        Basic: 0.5,
+        Premium: 1.0,
+        Featured: 5.0,
       };
 
       if (plan && planPrices[plan]) {
         finalAmount = planPrices[plan];
-        productName = `Heaven Brick - ${plan} Listing Plan`;
+        productName = `Heaven Bricks - ${plan} Listing Plan`;
         productDescription = `Fee for publishing property under ${plan} tier`;
         metadata.plan = plan;
       } else {
-        finalAmount = 250.00; // Standard brokerage retainer
-        productName = 'Heaven Brick - Brokerage Advisory Fee';
+        finalAmount = 250.0;
+        productName = 'Heaven Bricks - Brokerage Advisory Fee';
         productDescription = 'Professional real estate brokerage and advisory services retainer';
       }
 
@@ -123,14 +160,14 @@ export async function POST(req: Request) {
     // =========================================================================
     else if (type === 'agent_service_fee') {
       const serviceCatalog: Record<string, number> = {
-        'Property Valuation': 250.00,
-        'Legal & Solicitor Review': 350.00,
-        'Dedicated Agent Consultation': 150.00,
-        'Building Inspection': 450.00,
+        'Property Valuation': 250.0,
+        'Legal & Solicitor Review': 350.0,
+        'Dedicated Agent Consultation': 150.0,
+        'Building Inspection': 450.0,
       };
 
       const selectedService = serviceType || 'Dedicated Agent Consultation';
-      finalAmount = serviceCatalog[selectedService] || 150.00;
+      finalAmount = serviceCatalog[selectedService] || 150.0;
       productName = `Agent Service - ${selectedService}`;
       productDescription = `Fee for requested professional real estate service: ${selectedService}`;
 
@@ -158,9 +195,11 @@ export async function POST(req: Request) {
             product_data: {
               name: productName,
               description: productDescription,
-              images: ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&auto=format&fit=crop&q=80'],
+              images: [
+                'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&auto=format&fit=crop&q=80',
+              ],
             },
-            unit_amount: Math.round(finalAmount * 100), // Stripe expects amount in cents
+            unit_amount: Math.round(finalAmount * 100),
           },
           quantity: 1,
         },
@@ -168,8 +207,8 @@ export async function POST(req: Request) {
       mode: 'payment',
       client_reference_id: userId,
       metadata,
-      success_url: successUrl || defaultSuccessUrl,
-      cancel_url: cancelUrl || defaultCancelUrl,
+      success_url: getSafeRedirectUrl(successUrl, defaultSuccessUrl, siteUrl),
+      cancel_url: getSafeRedirectUrl(cancelUrl, defaultCancelUrl, siteUrl),
     });
 
     return NextResponse.json({ url: session.url, sessionId: session.id });

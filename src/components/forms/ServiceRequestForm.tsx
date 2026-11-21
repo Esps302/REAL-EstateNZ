@@ -152,11 +152,9 @@ export function ServiceRequestForm({ property, onSuccess, initialService }: Serv
   await fetch('/api/email', {
     method: 'POST',
     headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_SECRET || 'dev-secret-key'}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      to: 'Info@spsolutions.org.nz', // Admin Email
       templateType: 'serviceRequested',
       payload: {
         name: fullName,

@@ -7,18 +7,29 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return isAuthenticated() && (
+    function isSuperAdminEmail() {
+      return isAuthenticated() && request.auth.token.email != null && (
         request.auth.token.email == 'sanjay00002023@gmail.com' ||
         request.auth.token.email == 'realestatenz01@gmail.com' ||
         request.auth.token.email == 'info@spsolutions.org.nz' ||
         request.auth.token.email == 'sanjayranatanabana@gmail.com' ||
-        request.auth.token.email == 'sanjayrana00002023@gmail.com' ||
+        request.auth.token.email == 'sanjayrana00002023@gmail.com'
+      );
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        isSuperAdminEmail() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin'
         ))
       );
+    }
+
+    function isConversationParticipant(conversationId) {
+      return exists(/databases/$(database)/documents/conversations/$(conversationId)) &&
+        get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants.hasAny([request.auth.uid]);
     }
     
     match /properties/{propertyId} {
@@ -34,10 +45,19 @@ service cloud.firestore {
     
     match /users/{userId} {
       allow read: if true;
-      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Non-admins can only register as buyer, seller, or agent (prevents self-promotion to admin)
+      allow create: if isAuthenticated() && request.auth.uid == userId && (
+        isSuperAdminEmail() ||
+        !request.resource.data.keys().hasAny(['role']) ||
+        request.resource.data.role in ['buyer', 'seller', 'agent']
+      );
+      // Users can update their own profile, but CANNOT change their role
       allow update: if isAuthenticated() && (
         isAdmin() ||
-        request.auth.uid == userId || 
+        (
+          request.auth.uid == userId &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+        ) ||
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['averageRating', 'reviewCount'])
       );
       allow delete: if isAuthenticated() && (isAdmin() || request.auth.uid == userId);
@@ -45,17 +65,72 @@ service cloud.firestore {
     
     match /wallets/{walletId} {
       allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == walletId);
-      allow write: if isAuthenticated() && (isAdmin() || request.auth.uid == walletId);
+      // Allow initial welcome wallet creation with exact 0 balance & 1000 welcome credits
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          request.auth.uid == walletId &&
+          request.resource.data.balance == 0 &&
+          request.resource.data.credits == 1000 &&
+          request.resource.data.lifetimeCredits == 1000
+        )
+      );
+      // Prevent arbitrary balance/credit tampering from client:
+      // 1) Admin/server (Admin SDK bypasses rules) can do anything
+      // 2) User spending balance (e.g., listing purchase): balance decreases, stays >= 0, credits unchanged
+      // 3) User converting credits to balance (1000 credits = $1): credits decrease, balance increases by at most delta/1000
+      // 4) User earning small daily reward credits (<= 100 credits, balance unchanged, 24h cooldown)
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          request.auth.uid == walletId &&
+          request.resource.data.balance >= 0 &&
+          request.resource.data.credits >= 0 &&
+          (
+            // Case A: Spending balance (listing purchase)
+            (
+              request.resource.data.balance <= resource.data.balance &&
+              request.resource.data.credits == resource.data.credits
+            ) ||
+            // Case B: Converting credits to balance (rate: 1000 credits = 1 NZD)
+            (
+              request.resource.data.credits < resource.data.credits &&
+              (request.resource.data.balance - resource.data.balance) <= ((resource.data.credits - request.resource.data.credits) / 1000.0 + 0.001)
+            ) ||
+            // Case C: Earning daily activity credits (capped at 100 per 24h)
+            (
+              request.resource.data.balance == resource.data.balance &&
+              request.resource.data.credits > resource.data.credits &&
+              (request.resource.data.credits - resource.data.credits) <= 100 &&
+              (request.time.toMillis() - resource.data.get('lastCreditEarnedAt', 0)) >= 86400000
+            )
+          )
+        )
+      );
+      allow delete: if isAdmin();
     }
     
     match /credit_transactions/{txId} {
       allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow write: if isAuthenticated() && (isAdmin() || request.resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        (request.resource.data.userId == request.auth.uid && request.resource.data.credits <= 1000)
+      );
+      allow update, delete: if isAdmin();
     }
     
     match /wallet_transactions/{txId} {
       allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow write: if isAuthenticated() && (isAdmin() || request.resource.data.userId == request.auth.uid);
+      // Users can only log non-topup client transactions (listing purchases / credit conversions).
+      // Stripe top-ups are created exclusively server-side via Firebase Admin SDK.
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          request.resource.data.userId == request.auth.uid &&
+          request.resource.data.type in ['listing_purchase', 'credit_conversion']
+        )
+      );
+      allow update, delete: if isAdmin();
     }
     
     match /property_deposits/{depositId} {
@@ -71,12 +146,13 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       // Users can read their own notifications, admins can read all
       allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
-      // Users can update their own notifications, admins can create/update, AND anyone can create a notification for admin_system
-      allow write: if isAuthenticated() && (
-        isAdmin() || 
-        (request.resource.data.userId == request.auth.uid) ||
-        (request.resource.data.userId == 'admin_system')
+      // Allow creating unread admin_system alerts (for lead/viewing/contact forms), or own notifications when authenticated
+      allow create: if (
+        (request.resource.data.userId == 'admin_system' && request.resource.data.isRead == false) ||
+        (isAuthenticated() && (isAdmin() || request.resource.data.userId == request.auth.uid))
       );
+      // Only admins or the notification owner can update/delete
+      allow update, delete: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
     }
     
     match /reviews/{reviewId} {
@@ -142,20 +218,42 @@ service cloud.firestore {
     }
     
     match /conversations/{conversationId} {
-      allow read, write: if isAuthenticated() && (
+      allow read: if isAuthenticated() && (
         isAdmin() || 
-        resource.data.participants.hasAny([request.auth.uid]) ||
+        resource.data.participants.hasAny([request.auth.uid])
+      );
+      allow create: if isAuthenticated() && (
+        isAdmin() || 
         request.resource.data.participants.hasAny([request.auth.uid])
       );
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        resource.data.participants.hasAny([request.auth.uid])
+      );
+      allow delete: if isAdmin();
       
       match /messages/{messageId} {
-        allow read, write: if isAuthenticated();
+        allow read: if isAuthenticated() && (
+          isAdmin() ||
+          isConversationParticipant(conversationId)
+        );
+        allow create: if isAuthenticated() && (
+          isAdmin() ||
+          (
+            isConversationParticipant(conversationId) &&
+            request.resource.data.senderId == request.auth.uid
+          )
+        );
+        allow update, delete: if isAdmin();
       }
     }
     
     match /properties/{propertyId}/bids/{bidId} {
       allow read: if true;
-      allow create: if isAuthenticated() && request.resource.data.bidderId == request.auth.uid;
+      allow create: if isAuthenticated() && (
+        request.resource.data.bidderId == request.auth.uid ||
+        request.resource.data.userId == request.auth.uid
+      );
       allow update, delete: if isAdmin();
     }
 
@@ -164,4 +262,3 @@ service cloud.firestore {
     }
   }
 }
-

@@ -1403,11 +1403,12 @@ const dummyProperties = [
 export default function SeedPage() {
  const [loading, setLoading] = useState(false);
  const [status, setStatus] = useState("");
- const { user } = useAuth();
+ const { user, userData, loading: authLoading } = useAuth();
+ const isAdmin = Boolean(user) && (userData?.role === "admin" || userData?.role === "super_admin");
 
  const handleSeed = async () => {
- if (!user) {
- setStatus("Error: You must be logged in to seed the database (Firebase Rules requirement).");
+ if (!user || !isAdmin) {
+ setStatus("Error: Admin privileges are required to seed the database.");
  return;
  }
 
@@ -1463,9 +1464,9 @@ export default function SeedPage() {
  isDummy: true
  });
  count++;
- setStatus(`Seeding database... (${count}/24)`);
+ setStatus(`Seeding database... (${count}/${dummyProperties.length})`);
  }
- setStatus(`Success! Inserted 48 beautiful properties into the database.`);
+ setStatus(`Success! Inserted ${dummyProperties.length} properties into the database.`);
  } catch (error: any) {
  console.error(error);
  setStatus(`Error: ${error.message}`);
@@ -1473,6 +1474,27 @@ export default function SeedPage() {
  setLoading(false);
  }
  };
+
+ if (authLoading) {
+ return (
+ <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-6 text-white font-sans">
+ Checking permissions...
+ </div>
+ );
+ }
+
+ if (!isAdmin) {
+ return (
+ <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-6 text-white font-sans">
+ <div className="bg-zinc-800 p-8 rounded-2xl max-w-md w-full border border-zinc-700 shadow-2xl text-center">
+ <h1 className="text-2xl font-bold mb-3 text-red-400">Access Restricted</h1>
+ <p className="text-zinc-400 text-sm">
+ This database seeding tool is restricted to Heaven Bricks administrators only.
+ </p>
+ </div>
+ </div>
+ );
+ }
 
  return (
  <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-6 text-white font-sans">

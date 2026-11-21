@@ -75,10 +75,6 @@ const getAmenityIcon = (amenity: string) => {
         
         if (docSnap.exists()) {
           const propertyData = { id: docSnap.id, ...docSnap.data() } as Property;
-          // For testing: Only show the floor plan on sale properties that don't have one
-          if (propertyData.listingType === "For Sale" && !propertyData.floorPlan) {
-            propertyData.floorPlan = "/images/kk.jpg";
-          }
           setProperty(propertyData);
         } else {
           setError("Property not found");

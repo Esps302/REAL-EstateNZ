@@ -61,7 +61,7 @@ export default function AdminDashboardOverview() {
    }
  });
  setTotalRevenue(rev);
- const convRate = totalUsers > 0 ? ((payingUsers.size / totalUsers) * 100).toFixed(1) : "0.0";
+ const convRate = users.length > 0 ? ((payingUsers.size / users.length) * 100).toFixed(1) : "0.0";
  setConversionRate(`${convRate}%`);
  
  const activities: any[] = [];

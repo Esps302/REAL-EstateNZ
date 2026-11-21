@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { convertCreditsToBalance } from "@/lib/wallet";
-import { collection, query, where, getDocs, doc, runTransaction } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { WalletTransaction, CreditTransaction } from "@/types";
 import { 
@@ -161,9 +161,13 @@ function WalletPageContent() {
       const verifyStripePayment = async () => {
         const toastId = toast.loading("Verifying your Stripe payment...");
         try {
+          const idToken = await user.getIdToken();
           const res = await fetch('/api/stripe/verify-session', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
+            },
             body: JSON.stringify({ sessionId, userId: user.uid }),
           });
 
@@ -178,54 +182,13 @@ function WalletPageContent() {
 
           if (res.ok && data.success && data.verified) {
             const amountNum = Number(data.amount) || 0;
-            const walletRef = doc(db, "wallets", user.uid);
-            
-            // Client-side idempotency check
-            const txQuery = query(
-              collection(db, "wallet_transactions"),
-              where("stripeSessionId", "==", sessionId)
-            );
-            const existingTxSnap = await getDocs(txQuery);
-            const isAlreadyCredited = !existingTxSnap.empty;
 
-            if (!isAlreadyCredited) {
-              await runTransaction(db, async (t) => {
-                const snap = await t.get(walletRef);
-                const cur = snap.exists() ? (snap.data()?.balance || 0) : 0;
-                if (snap.exists()) {
-                  t.update(walletRef, { balance: cur + amountNum });
-                } else {
-                  t.set(walletRef, {
-                    id: user.uid,
-                    userId: user.uid,
-                    balance: amountNum,
-                    credits: 1000,
-                    lifetimeCredits: 1000,
-                    lifetimeConverted: 0,
-                    createdAt: Date.now(),
-                  });
-                }
-
-                const txRef = doc(collection(db, "wallet_transactions"));
-                t.set(txRef, {
-                  id: txRef.id,
-                  userId: user.uid,
-                  type: "top_up",
-                  amount: amountNum,
-                  status: "completed",
-                  description: `Stripe Card Top-Up ($${amountNum.toFixed(2)} NZD)`,
-                  stripeSessionId: sessionId,
-                  createdAt: Date.now(),
-                });
-              });
-            }
-
-            if (!isAlreadyCredited) {
+            if (data.alreadyProcessed) {
+              toast.info("Payment session already credited.");
+            } else {
               setSuccessModal({ type: 'topup', amount: amountNum });
               playGoldSound();
               toast.success(`Success! $${amountNum.toFixed(2)} NZD added to your wallet.`);
-            } else {
-              toast.info("Payment session already credited.");
             }
             fetchHistory();
           } else {
@@ -302,9 +265,13 @@ function WalletPageContent() {
 
     setIsToppingUp(true);
     try {
+      const idToken = await user.getIdToken();
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           userId: user.uid,
           amount: topUpAmount,
