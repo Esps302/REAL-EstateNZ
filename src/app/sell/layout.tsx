@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sell Your House in New Zealand | Free Property Appraisal | Heaven Bricks",
+  title: "Sell Your House in New Zealand | Free Property Appraisal",
   description: "Sell your home faster with Heaven Bricks. Get a free confidential property appraisal, connect with top-performing NZ agents, and reach qualified buyers across Auckland, Wellington, and Queenstown.",
   keywords: [
     "sell house New Zealand",

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Property Smart Match | Find Ideal Homes in New Zealand | Heaven Bricks",
+  title: "AI Property Smart Match | Find Ideal Homes in New Zealand",
   description: "Experience AI-powered property matching. Tell us your lifestyle, budget, school zones, and dream home wishlist to instantly get matched with homes across New Zealand.",
   keywords: [
     "AI property search New Zealand",

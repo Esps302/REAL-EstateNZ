@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Top Real Estate Agents in Auckland & New Zealand | Heaven Bricks",
+  title: "Top Real Estate Agents in Auckland & New Zealand",
   description: "Connect with the highest-rated licensed real estate agents in New Zealand. Top performers in Auckland, Wellington, Queenstown, and Christchurch ready to help you buy or sell.",
   keywords: [
     "real estate agents New Zealand",

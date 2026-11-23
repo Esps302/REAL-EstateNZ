@@ -29,14 +29,15 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const suburb = SUBURBS_DATA[params.slug];
   if (!suburb) {
-    return { title: "Location Not Found | Heaven Bricks" };
+    return { title: "Location Not Found" };
   }
 
   const rawBase = process.env.NEXT_PUBLIC_SITE_URL || "https://www.heavenbrick.com";
   const baseUrl = rawBase.replace(/\/+$/, "");
+  const cleanTitle = suburb.metaTitle.replace(/\s*\|\s*Heaven Bricks$/i, "");
 
   return {
-    title: suburb.metaTitle,
+    title: cleanTitle,
     description: suburb.metaDescription,
     keywords: suburb.keywords,
     alternates: {

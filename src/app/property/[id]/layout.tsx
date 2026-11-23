@@ -17,7 +17,8 @@ export async function generateMetadata({
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      const title = `${data.title} | Heaven Bricks NZ`;
+      const cleanTitle = data.title || "Luxury Property in New Zealand";
+      const ogTitle = `${cleanTitle} | Heaven Bricks`;
       const description = `${data.bedrooms || ""} Bed, ${data.bathrooms || ""} Bath ${
         data.type || "Property"
       } in ${data.suburb || data.city || "New Zealand"}. Price: $${Number(
@@ -26,13 +27,13 @@ export async function generateMetadata({
       const imageUrl = data.images?.[0] || "/images/logo-2.png";
 
       return {
-        title,
+        title: cleanTitle,
         description,
         alternates: {
           canonical: `/property/${params.id}`,
         },
         openGraph: {
-          title,
+          title: ogTitle,
           description,
           url: `${baseUrl}/property/${params.id}`,
           images: [
@@ -46,7 +47,7 @@ export async function generateMetadata({
         },
         twitter: {
           card: "summary_large_image",
-          title,
+          title: ogTitle,
           description,
           images: [imageUrl],
         },
@@ -57,7 +58,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: "Luxury Property in New Zealand | Heaven Bricks",
+    title: "Luxury Property in New Zealand",
     description:
       "Explore verified luxury properties and homes for sale in New Zealand with Heaven Bricks.",
   };
