@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Send, CheckCircle2, Home, BarChart3, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function LeadGenForm() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", intention: "appraisal" });
@@ -12,25 +14,74 @@ export default function LeadGenForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.phone) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim()) {
       toast.error("Please fill in all fields");
       return;
     }
-    
+
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const intentionLabel =
+      formData.intention === "appraisal"
+        ? "Free Property Appraisal"
+        : "VIP Off-Market Access";
+
+    try {
+      // 1. Save lead to Firestore
+      await addDoc(collection(db, "leads"), {
+        leadType: "homepage_insights",
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        inquiryType: intentionLabel,
+        propertyTitle: `Homepage Inquiry - ${intentionLabel}`,
+        propertyId: "homepage_leadgen",
+        message: `Requested ${intentionLabel} via Homepage Market Insights form.`,
+        status: "new",
+        createdAt: Date.now(),
+      });
+
+      // 2. Notify Admin Panel
+      await addDoc(collection(db, "notifications"), {
+        userId: "admin_system",
+        title: `New Market Insights Lead: ${formData.name.trim()}`,
+        message: `${formData.name.trim()} (${formData.phone.trim()}) requested ${intentionLabel}.`,
+        type: "info",
+        isRead: false,
+        isPoppedUp: false,
+        link: "/admin/crm",
+        createdAt: Date.now(),
+      }).catch((err) => console.error("Admin notification error:", err));
+
+      // 3. Send Admin Email via /api/email
+      await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateType: "agentRequested",
+          payload: {
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            phone: formData.phone.trim(),
+            interest: intentionLabel,
+            region: "New Zealand",
+            requirements: `Homepage VIP Market Insights request (${intentionLabel}).`,
+          },
+        }),
+      }).catch((err) => console.error("Email notification error:", err));
+
       setIsSuccess(true);
       toast.success("Request received! Our team will contact you shortly.");
-      
-      // Reset form after a few seconds
+
       setTimeout(() => {
         setIsSuccess(false);
         setFormData({ name: "", email: "", phone: "", intention: "appraisal" });
       }, 5000);
-    }, 1500);
+    } catch (error) {
+      console.error("Failed to submit homepage lead:", error);
+      toast.error("Failed to submit your request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

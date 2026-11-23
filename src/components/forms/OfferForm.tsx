@@ -105,7 +105,23 @@ export function OfferForm({ property, onSuccess }: OfferFormProps) {
     console.error("Failed to send offer confirmation email", emailErr);
   }
 
- // 3. Send In-App Admin Notification
+ // 3. Send Admin Email Alert
+ fetch('/api/email', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+     templateType: 'serviceRequested',
+     payload: {
+       name: userData.name || 'Buyer',
+       email: userData.email || user.email || 'Not provided',
+       phone: phone || userData.phone || 'Not provided',
+       serviceType: `New Offer: $${Number(offerPrice).toLocaleString()} (${paymentType})`,
+       propertyAddress: property.title || property.id,
+     },
+   }),
+ }).catch(err => console.error("Failed to send admin offer email", err));
+
+ // 4. Send In-App Admin Notification
  await addDoc(collection(db, "notifications"), {
    userId: "admin_system",
    title: `New Offer: ${userData.name}`,

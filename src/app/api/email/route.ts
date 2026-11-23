@@ -3,7 +3,7 @@ import { sendEmail, templates } from '@/lib/email';
 import { isAllowedOrigin, verifyFirebaseBearerToken } from '@/lib/server-auth';
 import { getAdminAuth } from '@/lib/firebase-admin';
 
-const ADMIN_EMAIL = 'Info@spsolutions.org.nz';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'realestatenz01@gmail.com';
 
 // Simple in-memory IP rate limiter (10 email requests per minute per IP)
 const RATE_LIMIT_WINDOW_MS = 60_000;

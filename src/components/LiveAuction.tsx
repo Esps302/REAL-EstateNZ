@@ -136,6 +136,22 @@ export default function LiveAuction({ propertyId, startingPrice }: LiveAuctionPr
         createdAt: Date.now()
       });
 
+      // Send Admin Email Alert for the new bid
+      fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateType: 'serviceRequested',
+          payload: {
+            name: bidderName,
+            email: user.email || 'Not provided',
+            phone: bidderPhone,
+            serviceType: `Live Auction Bid: $${amountNum.toLocaleString()}`,
+            propertyAddress: `Property ID: ${propertyId}`,
+          },
+        }),
+      }).catch((err) => console.error("Failed to send admin auction bid email", err));
+
       if (user.email) {
         sendNotificationEmail({
           to: user.email,

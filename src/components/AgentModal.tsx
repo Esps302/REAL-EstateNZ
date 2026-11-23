@@ -89,7 +89,7 @@ export default function AgentModal({ isOpen, onClose, defaultInterest = "Buy" }:
     createdAt: Date.now()
   }).catch(err => console.error("Failed to create admin notification", err));
 
-  if (email) {
+  if (user && email) {
     sendNotificationEmail({
       to: email,
       templateType: "userActionConfirmation",

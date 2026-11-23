@@ -214,6 +214,31 @@ export default function SettingsPage() {
  createdAt: Date.now(),
  status: 'open'
  });
+ await addDoc(collection(db, 'notifications'), {
+ userId: 'admin_system',
+ title: `New Support Ticket: ${ticketSubject}`,
+ message: `${user.email || user.displayName || 'User'}: ${ticketMessage.slice(0, 100)}`,
+ type: 'info',
+ isRead: false,
+ isPoppedUp: false,
+ link: '/admin/tickets',
+ createdAt: Date.now(),
+ }).catch(() => {});
+ fetch('/api/email', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ templateType: 'agentRequested',
+ payload: {
+ name: userData?.name || user.displayName || 'User',
+ email: user.email || 'Not provided',
+ phone: userData?.phone || 'Not provided',
+ interest: `Support Ticket: ${ticketSubject}`,
+ region: 'Support Center',
+ requirements: ticketMessage,
+ },
+ }),
+ }).catch(() => {});
  setTicketSubject('');
  setTicketMessage('');
  alert('Support ticket submitted successfully!');

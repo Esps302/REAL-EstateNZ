@@ -71,7 +71,7 @@ export default function CareersContent() {
         createdAt: Date.now(),
       });
 
-      // Notify admin
+      // Notify admin in-app
       await addDoc(collection(db, "notifications"), {
         userId: "admin_system",
         title: `New Career Application: ${selectedRole?.title}`,
@@ -82,6 +82,23 @@ export default function CareersContent() {
         link: "/admin/crm",
         createdAt: Date.now(),
       }).catch(() => {});
+
+      // Send Admin Email Notification
+      fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateType: "agentRequested",
+          payload: {
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim() || "Not provided",
+            interest: `Career Application: ${selectedRole?.title || "General"}`,
+            region: selectedRole?.location || "New Zealand",
+            requirements: `Portfolio/CV: ${portfolio || "None"} | Note: ${notes || "None"}`,
+          },
+        }),
+      }).catch((err) => console.error("Career email notification error:", err));
 
       setAppliedRoleTitle(selectedRole?.title || "Role");
       setSelectedRole(null);

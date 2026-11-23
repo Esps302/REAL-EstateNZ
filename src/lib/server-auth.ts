@@ -73,8 +73,6 @@ export function isAllowedOrigin(request: Request): boolean {
   const allowedOrigins = new Set<string>([
     'https://heavenbrick.com',
     'https://www.heavenbrick.com',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
     'capacitor://localhost',
     'http://localhost',
     'https://localhost',
@@ -91,5 +89,20 @@ export function isAllowedOrigin(request: Request): boolean {
     allowedOrigins.add(`https://${process.env.VERCEL_URL}`);
   }
 
-  return allowedOrigins.has(origin);
+  if (allowedOrigins.has(origin)) return true;
+
+  // Also allow local dev on any port and Vercel deployments for this project
+  try {
+    const parsed = new URL(origin);
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      return true;
+    }
+    if (parsed.hostname.endsWith('.vercel.app') && parsed.protocol === 'https:') {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
 }

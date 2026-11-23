@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
 
-const ADMIN_EMAIL = 'Info@spsolutions.org.nz';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'realestatenz01@gmail.com';
 
 export async function POST(req: Request) {
   try {
@@ -216,7 +216,7 @@ export async function POST(req: Request) {
 
           console.log(`[Webhook] Successfully credited $${amount.toFixed(2)} NZD to user ${userId} and sent emails.`);
         }
-      } 
+      }
       // =======================================================================
       // 2. PROPERTY BOOKING DEPOSIT
       // =======================================================================
@@ -303,7 +303,7 @@ export async function POST(req: Request) {
         ).catch((e) => console.error('[Email error admin deposit alert]:', e));
 
         console.log(`[Webhook] Confirmed booking deposit of $${amount.toFixed(2)} NZD for property ${propertyId}`);
-      } 
+      }
       // =======================================================================
       // 3. BROKERAGE / AGENT SERVICE FEES
       // =======================================================================

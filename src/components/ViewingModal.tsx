@@ -91,9 +91,9 @@ export function ViewingModal({ isOpen, onClose, propertyId, propertyTitle }: Vie
         isPoppedUp: false,
         link: "/admin/viewings",
         createdAt: serverTimestamp()
-      });
+      }).catch((err) => console.error("Failed to create admin viewing notification:", err));
 
-      if (formData.email) {
+      if (user && formData.email) {
         sendNotificationEmail({
           to: formData.email,
           templateType: "userActionConfirmation",

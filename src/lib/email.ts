@@ -5,14 +5,15 @@ export const transporter = nodemailer.createTransport({
   port: 465,
   secure: true, // use SSL
   auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
+    user: process.env.SMTP_EMAIL?.trim(),
+    pass: process.env.SMTP_PASSWORD?.replace(/\s+/g, ''),
   },
 });
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
+  const smtpUser = process.env.SMTP_EMAIL?.trim();
   const mailOptions = {
-    from: `"Heaven Bricks" <${process.env.SMTP_EMAIL}>`,
+    from: `"Heaven Bricks" <${smtpUser}>`,
     to,
     subject,
     html,

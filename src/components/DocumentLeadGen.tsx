@@ -49,7 +49,23 @@ export default function DocumentLeadGen({ propertyId, propertyTitle }: DocumentL
         createdAt: Date.now()
       }).catch(err => console.error("Failed to notify admin", err));
       
-      if (email) {
+      // Send Admin Email Notification
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateType: 'serviceRequested',
+          payload: {
+            name,
+            email,
+            phone,
+            serviceType: 'Property Info Pack Request',
+            propertyAddress: propertyTitle,
+          },
+        }),
+      }).catch((err) => console.error("Failed to send admin info pack email:", err));
+
+      if (user && email) {
         sendNotificationEmail({
           to: email,
           templateType: "userActionConfirmation",
@@ -63,8 +79,6 @@ export default function DocumentLeadGen({ propertyId, propertyTitle }: DocumentL
           }
         });
       }
-      // Simulate network request for sending email
-      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Award credits
       if (user) {
